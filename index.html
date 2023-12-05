@@ -20,6 +20,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <h1>My Online Store</h1>
 </header>
 
+<div id="customer-ids"></div>
+
+    <script>
+        // Function to generate a random customer ID
+        function generateCustomerID() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let customerID = '';
+
+            for (let i = 0; i < 16; i++) {
+                customerID += characters[Math.floor(Math.random() * characters.length)];
+            }
+
+            return customerID;
+        }
+
+        // Generate 10 random customer IDs
+        const customerIDs = [];
+        for (let i = 0; i < 10; i++) {
+            const customerID = generateCustomerID();
+            customerIDs.push(customerID);
+        }
+
+        // Display the generated customer IDs
+        const customerIDContainer = document.getElementById('customer-ids');
+        customerIDContainer.textContent = 'Customer IDs: ' + customerIDs.join(', ');
+    </script>
 
 // Initialize DataLayer
 dataLayer = [];
@@ -39,7 +65,7 @@ dataLayertest =
         quantity: 1,
         name: "cleanlights",
     }
-]
+];
   
 // Push values data layer
 dataLayer.push({'oid': orderId_val, 'customerid': customerId_val});

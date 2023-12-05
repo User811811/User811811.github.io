@@ -20,6 +20,44 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <h1>My Online Store</h1>
 </header>
 
+
+// Initialize DataLayer
+dataLayer = [];
+dataLayertest = 
+[
+    {
+        subTotal: 150.00,
+        category: "performance",
+        sku: "car-turbo",
+        quantity: 1,
+        name: "horsepowerturbo",   
+    },
+    {
+        subTotal: 125.00,
+        category: "cosmetics",
+        sku: "headlights",
+        quantity: 1,
+        name: "cleanlights",
+    }
+]
+  
+// Push values data layer
+dataLayer.push({'key': orderId_val, 'value': customerId_val});
+
+// UTT Conversion Function
+function UTTGTMTest() {
+    ire('trackConversion', 41742, {
+    orderId: "{{orderId}}",
+    customerId: "{{customerId}}",
+    customerEmail: ' ',
+    customerStatus: "{{customerStatus}}",
+    currencyCode: "{{currencyCode}}"
+    items: dataLayertest
+  },
+  {
+    verifySiteDefinitionMatch:true
+  };
+
 <main>
 <h1>Featured Products</h1>
 
@@ -28,7 +66,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <h2>Product 1</h2>
 <p>$19.99</p>
 <a href="thankyou.html">
-<button>Buy</button>
+<button onclick="UTTGTMTest()">Buy Test</button>
 </a>
 </section>
 

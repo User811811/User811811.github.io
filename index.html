@@ -10,8 +10,144 @@
   })(window,document,'script','dataLayer','GTM-WNRSPDK4');</script>
   <!-- End Google Tag Manager -->
   
+  <!-- Random Alphanumeric Generator -->
+  <script>
+    function generateRandom(length) {
+      const alphanumericCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let randomSequence = '';
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * alphanumericCharacters.length);
+        randomSequence += alphanumericCharacters[randomIndex];
+      }
+      return randomSequence;
+    }
+  </script>
+  <!-- End Random Alphanumeric Generator -->
+
+  <!-- SHA1 Function -->
+  <script>
+    function SHA1(message) {
+  // Constants defined in SHA-1 standard
+  const h0 = 0x67452301;
+  const h1 = 0xefcdab89;
+  const h2 = 0x98badcfe;
+  const h3 = 0x10325477;
+  const h4 = 0xc01f3a35;
+
+  // Pre-processing the message
+  const messageBytes = utf8Encode(message);
+  const bitLength = messageBytes.length * 8;
+  const paddedMessage = padMessage(messageBytes, bitLength);
+  const messageBlocks = chunkMessage(paddedMessage);
+
+  // Hash calculation
+  for (const block of messageBlocks) {
+    const w = new Array(80);
+    for (let i = 0; i < 16; i++) {
+      w[i] = ((block[0 * 4 + i] << 24) |
+               (block[1 * 4 + i] << 16) |
+               (block[2 * 4 + i] << 8) |
+               block[3 * 4 + i]);
+    }
+
+    for (let i = 16; i < 80; i++) {
+      w[i] = rotateLeft(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
+    }
+
+    let a = h0;
+    let b = h1;
+    let c = h2;
+    let d = h3;
+    let e = h4;
+
+    for (let i = 0; i < 80; i++) {
+      const f = selectFunction(i);
+      const k = constants[i];
+
+      let temp = rotateLeft(a, 5) + f(b, c, d) + e + k + w[i];
+      e = d;
+      d = c;
+      c = rotateLeft(b, 30);
+      b = a;
+      a = temp;
+    }
+
+    h0 += a;
+    h1 += b;
+    h2 += c;
+    h3 += d;
+    h4 += e;
+  }
+
+  // Convert hash to hex string
+  const hash = [h0, h1, h2, h3, h4].map(value => value.toString(16)).join('');
+  return hash;
+}
+
+// Utility functions
+
+function utf8Encode(message) {
+  const encoder = new TextEncoder('utf-8');
+  return encoder.encode(message);
+}
+
+function padMessage(message, bitLength) {
+  const length = ((bitLength >> 9) + 1) * 4;
+  const padding = new Uint8Array(length - message.length);
+
+  for (let i = 0; i < padding.length; i++) {
+    padding[i] = 0x80;
+  }
+
+  const paddedMessage = new Uint8Array(message.length + padding.length);
+  paddedMessage.set(message);
+  paddedMessage.set(padding, message.length);
+
+  return paddedMessage;
+}
+
+function chunkMessage(paddedMessage) {
+  const chunkSize = 512;
+  const chunks = [];
+
+  for (let i = 0; i < paddedMessage.length; i += chunkSize) {
+    chunks.push(paddedMessage.slice(i, i + chunkSize));
+  }
+
+  return chunks;
+}
+
+function rotateLeft(value, n) {
+  return ((value << n) | (value >>> (32 - n))) >>> 0;
+}
+
+function selectFunction(i) {
+  if (i <= 19) {
+    return (b, c, d) => (b & c) | (~b & d);
+  } else if (i <= 39) {
+    return (b, c, d) => b ^ c ^ d;
+  } else if (i <= 59) {
+    return (b, c, d) => (b & d) | (c & ~d);
+  } else if (i <= 79) {
+    return (b, c, d) => b ^ c ^ d;
+  }
+}
+
+  </script>
+  <!-- End SHA1 Function -->
+  
   <title>Jason's Test Store</title>
   <link rel="stylesheet" href="styles.css">
+
+  <script>
+    const oid = generateRandom(8);
+    const customerid = generateRandom(12);
+    const customeremail = generateRandom(20);
+
+    console.log(oid);
+    console.log(customerid);
+    console.log(customeremail);
+  </script> 
   
 </head>
 <body>

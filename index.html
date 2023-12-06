@@ -183,27 +183,30 @@ function selectFunction(i) {
   <div class="product-container">
     <div class="product">
       <h3>OID</h3>
-      <p id="a">Test</p>
+      <p id="a">Error</p>
     </div>
 
     <div class="product">
       <h3>Customer ID</h3>
-      <p id="b">Test</p>
+      <p id="b">Error</p>
     </div>
 
     <div class="product">
       <h3>Customer Email</h3>
-      <p id="c">Test</p>
+      <p id="c">Error</p>
     </div>
   </div>
 
   <script>
     const aa = generateRandom(8);
     document.getElementById("a").innerHTML = aa;
-    
-    document.getElementById("b").innerHTML = generateRandom(12);
 
-    document.getElementById("c").innerHTML = generateRandom(22);
+    const bb = generateRandom(12);
+    document.getElementById("b").innerHTML = bb;
+
+    const cc = generateRandom(22);
+    const dd = SHA1(cc);
+    document.getElementById("c").innerHTML = cc;
   </script> 
   <!-- End of Variables -->
   <!-- Start of Footer -->

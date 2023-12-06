@@ -140,13 +140,11 @@ function selectFunction(i) {
   <link rel="stylesheet" href="styles.css">
 
   <script>
-    const oid = generateRandom(8);
-    const customerid = generateRandom(12);
-    const customeremail = generateRandom(20);
-
-    console.log(oid);
-    console.log(customerid);
-    console.log(customeremail);
+    const dl_oid = generateRandom(8);
+    const dl_customerid = generateRandom(12);
+    var dl_customeremailnohash = generateRandom(20);
+    const dl_customeremail = SHA1(dl_customeremailnohash);
+ 
   </script> 
   
 </head>
@@ -162,7 +160,7 @@ function selectFunction(i) {
   <h1>Welcome to Jason's Online Store for Testing!</h1>
   </header>
   <!-- End of Header -->
-
+  <!-- Start of Products -->
   <div class="product-container">
     <div class="product">
       <img src="/images/bakkieturbo.png" alt="Bakkie Turbo">
@@ -188,7 +186,37 @@ function selectFunction(i) {
       <button class="buy-now">Buy Now</button>
     </div>
   </div>
+  <!-- End of Products -->
+  <!-- Start of Variables -->
+  <script>
+  const element = document.createElement('p');
+    element.textContent = dl_customerid;
+    document.body.appendChild(element);
+  
+  <div class="product-container">
+    <div class="product">
+      <h3>OID</h3>
+      <p>const oid</p>
+      <span class="price">R1 200.00</span>
+      <button class="buy-now">Buy Now</button>
+    </div>
 
+    <div class="product">
+      <h3>Customer ID</h3>
+      <p>A lot faster.</p>
+      <span class="price">R5 800.00</span>
+      <button class="buy-now">Buy Now</button>
+    </div>
+
+    <div class="product">
+      <h3>Customer Email</h3>
+      <p>The fastest.</p>
+      <span class="price">R72 000.00</span>
+      <button class="buy-now">Buy Now</button>
+    </div>
+  </div>
+  </script>
+  <!-- End of Variables -->
   <!-- Start of Footer -->
   <footer>
   <p>Copyright &copy; 2023 Jason Souma</p>

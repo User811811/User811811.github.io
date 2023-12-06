@@ -140,15 +140,15 @@ function selectFunction(i) {
   <link rel="stylesheet" href="styles.css">
 
   <script>
-    const dl_oid = generateRandom(8);
-    document.getElementById('a').innerHTML = dl_oid;
+    //const dl_oid = generateRandom(8);
+    document.getElementById('a').innerHTML = generateRandom(8);
     
     const dl_customerid = generateRandom(12);
     document.getElementById('b').innerHTML = dl_customerid;
     
     const dl_customeremailnohash = generateRandom(20);
     const dl_customeremail = SHA1(dl_customeremailnohash);
-    document.getElementById('c').innerHTML = dl_csutomeremail;
+    document.getElementById('c').innerHTML = dl_customeremail;
   </script> 
   
 </head>

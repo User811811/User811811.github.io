@@ -138,15 +138,6 @@ function selectFunction(i) {
   
   <title>Jason's Test Store</title>
   <link rel="stylesheet" href="styles.css">
-
-  <script>
-    //const dl_oid = generateRandom(8);
-    
-    const dl_customerid = generateRandom(12);
-    
-    const dl_customeremailnohash = generateRandom(20);
-    const dl_customeremail = SHA1(dl_customeremailnohash);
-  </script> 
   
 </head>
 <body>
@@ -209,11 +200,10 @@ function selectFunction(i) {
   <script>
     document.getElementById("a").innerHTML = generateRandom(8);
     
-    document.getElementById("b").innerHTML = "Is this changed";
+    document.getElementById("b").innerHTML = generateRandom(12);
     
-    document.getElementById("c").innerHTML = dl_customeremail;
+    document.getElementById("c").innerHTML = SHA1(generateRandom(30));
   </script> 
-  
   <!-- End of Variables -->
   <!-- Start of Footer -->
   <footer>

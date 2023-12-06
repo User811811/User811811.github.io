@@ -141,14 +141,11 @@ function selectFunction(i) {
 
   <script>
     //const dl_oid = generateRandom(8);
-    document.getElementById("a").innerHTML = generateRandom(8);
     
     const dl_customerid = generateRandom(12);
-    document.getElementById("b").innerHTML = dl_customerid;
     
     const dl_customeremailnohash = generateRandom(20);
     const dl_customeremail = SHA1(dl_customeremailnohash);
-    document.getElementById("c").innerHTML = dl_customeremail;
   </script> 
   
 </head>
@@ -208,6 +205,19 @@ function selectFunction(i) {
       <p id="c"></p>
     </div>
   </div>
+
+  <script>
+    //const dl_oid = generateRandom(8);
+    document.getElementById("a").innerHTML = generateRandom(8);
+    
+    //const dl_customerid = generateRandom(12);
+    document.getElementById("b").innerHTML = dl_customerid;
+    
+    const dl_customeremailnohash = generateRandom(20);
+    const dl_customeremail = SHA1(dl_customeremailnohash);
+    document.getElementById("c").innerHTML = dl_customeremail;
+  </script> 
+  
   <!-- End of Variables -->
   <!-- Start of Footer -->
   <footer>

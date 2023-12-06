@@ -142,9 +142,8 @@ function selectFunction(i) {
   <script>
     const dl_oid = generateRandom(8);
     const dl_customerid = generateRandom(12);
-    var dl_customeremailnohash = generateRandom(20);
+    const dl_customeremailnohash = generateRandom(20);
     const dl_customeremail = SHA1(dl_customeremailnohash);
- 
   </script> 
   
 </head>
@@ -188,34 +187,28 @@ function selectFunction(i) {
   </div>
   <!-- End of Products -->
   <!-- Start of Variables -->
-  <script>
-  const element = document.createElement('p');
-    element.textContent = dl_customerid;
-    document.body.appendChild(element);
-  
   <div class="product-container">
     <div class="product">
       <h3>OID</h3>
-      <p>const oid</p>
+      <p><script>const dl_oid</script></p>
       <span class="price">R1 200.00</span>
       <button class="buy-now">Buy Now</button>
     </div>
 
     <div class="product">
       <h3>Customer ID</h3>
-      <p>A lot faster.</p>
+      <p><script>const dl_customerid</script></p>
       <span class="price">R5 800.00</span>
       <button class="buy-now">Buy Now</button>
     </div>
 
     <div class="product">
       <h3>Customer Email</h3>
-      <p>The fastest.</p>
+      <p><script>const dl_customeremail</script></p>
       <span class="price">R72 000.00</span>
       <button class="buy-now">Buy Now</button>
     </div>
   </div>
-  </script>
   <!-- End of Variables -->
   <!-- Start of Footer -->
   <footer>

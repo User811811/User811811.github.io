@@ -20,7 +20,7 @@
           sku: "bakkie-turbo",
           quantity: 3,
           subtotal: 1200.00
-          Event: 'sendConversion'
+          conversionReady: 'sendConversion'
         });
         break;
       case 2:
@@ -29,7 +29,7 @@
           sku: "car-turbo",
           quantity: 2,
           subtotal: 5800.00
-          Event: 'sendConversion'
+          conversionReady: 'sendConversion'
         });
         break;
       case 3:
@@ -38,12 +38,8 @@
           sku: "sports-turbo",
           quantity: 1,
           subtotal: 72000.00
-          Event: 'sendConversion'
+          conversionReady: 'sendConversion'
         });
-
-        case 4:
-        dataLayer.push({
-          Event: 'sendConversion',
         });
         break;
       default:
@@ -290,7 +286,7 @@
     <div class="product">
       <h3>Purchase</h3>
       <p>Submit Conversion</p>
-      <a href="processing.html"><button onclick="populateDataLayer(4)" class="buy-now">Buy Now</button></a>
+      <a href="processing.html"><button class="buy-now">Buy Now</button></a>
     </div>
   </div>
   <!-- End of Checkout Button -->

@@ -37,6 +37,11 @@
           quantity: 1,
           subtotal: 72000.00
         });
+
+        case 4:
+        dataLayer.push({
+          event: 'sendConversion',
+        });
         break;
       default:
         console.warn("Invalid item case provided.");
@@ -282,7 +287,7 @@
     <div class="product">
       <h3>Purchase</h3>
       <p>Submit Conversion</p>
-      <a href="processing.html"><button class="buy-now">Buy Now</button></a>
+      <a href="processing.html"><button onclick="populateDataLayer(4)" class="buy-now">Buy Now</button></a>
     </div>
   </div>
   <!-- End of Checkout Button -->

@@ -9,6 +9,41 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-WNRSPDK4');</script>
   <!-- End Google Tag Manager -->
+
+  <!-- Item Picker -->
+  <script>
+  function populateDataLayer(itemCase) {
+    switch (itemCase) {
+      case 1:
+        dataLayer.push({
+          name: "Bakkie Turbo",
+          sku: "bakkie-turbo",
+          quantity: 3,
+          subtotal: 1200.00
+        });
+        break;
+      case 2:
+        dataLayer.push({
+          name: "Car Turbo",
+          sku: "car-turbo",
+          quantity: 2,
+          subtotal: 5800.00
+        });
+        break;
+      case 3:
+        dataLayer.push({
+          name: "Sports Turbo",
+          sku: "sports-turbo",
+          quantity: 1,
+          subtotal: 72000.00
+        });
+        break;
+      default:
+        console.warn("Invalid item case provided.");
+    }
+  }
+  </script>
+  <!-- End Item Picker -->
   
   <!-- Random Alphanumeric Generator -->
   <script>
@@ -185,7 +220,7 @@
       <h3>Bakkie Turbo</h3>
       <p>Bit faster.</p>
       <span class="price">R1 200.00</span>
-      <button class="buy-now">Buy Now</button>
+      <button onclick="populateDataLayer(1)" class="buy-now">Buy Now</button>
     </div>
 
     <div class="product">
@@ -193,7 +228,7 @@
       <h3>Car Turbo</h3>
       <p>A lot faster.</p>
       <span class="price">R5 800.00</span>
-      <button class="buy-now">Buy Now</button>
+      <button onclick="populateDataLayer(2)" class="buy-now">Buy Now</button>
     </div>
 
     <div class="product">
@@ -201,7 +236,7 @@
       <h3>Sports Turbo</h3>
       <p>The fastest.</p>
       <span class="price">R72 000.00</span>
-      <button class="buy-now">Buy Now</button>
+      <button onclick="populateDataLayer(3)" class="buy-now">Buy Now</button>
     </div>
   </div>
   <!-- End of Products -->

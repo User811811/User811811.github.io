@@ -39,7 +39,7 @@
 
         <header class="text-center my-8 md:my-16">
             <h1 class="text-4xl md:text-6xl font-black text-[#00A6ED] tracking-tight">The Impact & tvScientific Partnership</h1>
-            <p class="text-xl md:text-2xl mt-4 text-gray-300">A seamless data flow for performance-based payouts.</p>
+            <p class="text-xl md:text-2xl mt-4 text-gray-300">Exploring Pixel, Postback, and UTT Integration Flows.</p>
         </header>
 
         <main>
@@ -49,57 +49,105 @@
                     <div class="bg-gray-700/50 p-6 rounded-xl shadow-lg border border-gray-600">
                         <div class="text-5xl mb-4">🏢</div>
                         <h3 class="text-2xl font-bold text-white mb-2">Mutual Client</h3>
-                        <p class="text-gray-400">The advertiser who wants to measure the performance of their tvScientific campaigns within the Impact platform.</p>
+                        <p class="text-gray-400">The advertiser measuring tvScientific campaign performance in Impact.</p>
                     </div>
                     <div class="bg-gray-700/50 p-6 rounded-xl shadow-lg border border-gray-600">
                         <div class="text-5xl mb-4">📈</div>
                         <h3 class="text-2xl font-bold text-white mb-2">Impact Platform</h3>
-                        <p class="text-gray-400">The central hub for partnership management, tracking, and payment processing.</p>
+                        <p class="text-gray-400">The central hub for tracking, partnership management, and payments.</p>
                     </div>
                     <div class="bg-gray-700/50 p-6 rounded-xl shadow-lg border border-gray-600">
                         <div class="text-5xl mb-4">📺</div>
                         <h3 class="text-2xl font-bold text-white mb-2">tvScientific</h3>
-                        <p class="text-gray-400">The performance advertising partner driving conversions through connected TV campaigns.</p>
+                        <p class="text-gray-400">The performance ad partner driving conversions via connected TV.</p>
                     </div>
                 </div>
             </section>
 
-            <section id="flow" class="mb-16 md:mb-24">
-                <div class="flex flex-col md:flex-row md:items-stretch md:justify-center">
-                    
-                    <div class="flex-1 bg-[#00A6ED]/20 border-2 border-[#00A6ED] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
-                        <div class="text-4xl font-black text-[#00A6ED] mb-2">1</div>
-                        <h3 class="text-xl font-bold mb-2">Initial Setup</h3>
-                        <p class="text-gray-300">The Mutual Client creates a dedicated FTP event delivery for tvScientific within their Impact account.</p>
+            <!-- Pixel Integration Section -->
+            <section id="pixel-integration" class="mb-16 md:mb-24">
+                <div class="bg-gray-800/40 p-6 md:p-8 rounded-2xl border border-gray-700">
+                    <h2 class="text-3xl font-bold text-center mb-4 text-[#FFD800]">Pixel Integration Flow</h2>
+                    <p class="text-center text-gray-400 mb-8 max-w-3xl mx-auto">The standard integration relies on tvScientific uploading a CSV of all tracked events to a dedicated FTP endpoint for processing by Impact.</p>
+                    <div class="flex flex-col md:flex-row md:items-stretch md:justify-center">
+                        <div class="flex-1 bg-[#00A6ED]/20 border-2 border-[#00A6ED] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">1. FTP Setup</h3>
+                            <p class="text-gray-300">Client creates a dedicated FTP event delivery in Impact for tvScientific.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#7D3CF8]/20 border-2 border-[#7D3CF8] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">2. Event Tracking</h3>
+                            <p class="text-gray-300">tvScientific tracks all potential conversion events for the client.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#E84855]/20 border-2 border-[#E84855] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">3. Data Upload</h3>
+                            <p class="text-gray-300">tvScientific uploads a complete CSV of events to the FTP endpoint.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#FFD800]/20 border-2 border-[#FFD800] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">4. Processing</h3>
+                            <p class="text-gray-300">Impact ingests the CSV, attributes events, and calculates payout.</p>
+                        </div>
                     </div>
+                </div>
+            </section>
 
-                    <div class="flow-arrow md:hidden"></div>
-                    <div class="hidden md:flex md-flow-arrow"></div>
-
-                    <div class="flex-1 bg-[#7D3CF8]/20 border-2 border-[#7D3CF8] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
-                        <div class="text-4xl font-black text-[#7D3CF8] mb-2">2</div>
-                        <h3 class="text-xl font-bold mb-2">Event Tracking</h3>
-                        <p class="text-gray-300">tvScientific's platform tracks conversions and other key events driven by their campaigns for the client.</p>
+            <!-- Postback Integration Section -->
+            <section id="postback-integration" class="mb-16 md:mb-24">
+                 <div class="bg-gray-800/40 p-6 md:p-8 rounded-2xl border border-gray-700">
+                    <h2 class="text-3xl font-bold text-center mb-4 text-[#FFD800]">Postback Integration Flow</h2>
+                    <p class="text-center text-gray-400 mb-8 max-w-3xl mx-auto">This enhanced method adds a real-time postback from Impact to tvScientific. This helps tvScientific reconcile data and upload a cleaner, more accurate CSV file, reducing duplication.</p>
+                    <div class="flex flex-col md:flex-row md:items-stretch md:justify-center">
+                         <div class="flex-1 bg-[#00A6ED]/20 border-2 border-[#00A6ED] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">1. Impact Tracks Event</h3>
+                            <p class="text-gray-300">A conversion is tracked on Impact's side via a standard tracking pixel.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#7D3CF8]/20 border-2 border-[#7D3CF8] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">2. Real-time Postback</h3>
+                            <p class="text-gray-300">Impact sends an instant server-to-server postback to tvScientific confirming the event.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#E84855]/20 border-2 border-[#E84855] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">3. Reconciled Upload</h3>
+                            <p class="text-gray-300">tvScientific uploads a reconciled CSV containing only relevant, verified events.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#FFD800]/20 border-2 border-[#FFD800] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">4. Final Processing</h3>
+                            <p class="text-gray-300">Impact processes the cleaner CSV for accurate payout.</p>
+                        </div>
                     </div>
+                </div>
+            </section>
 
-                    <div class="flow-arrow md:hidden"></div>
-                    <div class="hidden md:flex md-flow-arrow"></div>
-
-                    <div class="flex-1 bg-[#E84855]/20 border-2 border-[#E84855] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
-                        <div class="text-4xl font-black text-[#E84855] mb-2">3</div>
-                        <h3 class="text-xl font-bold mb-2">Data Upload</h3>
-                        <p class="text-gray-300">tvScientific uploads a CSV file of tracked events to the client's secure FTP endpoint on Impact.</p>
+            <!-- UTT Integration Section -->
+            <section id="utt-integration" class="mb-16 md:mb-24">
+                <div class="bg-gray-800/40 p-6 md:p-8 rounded-2xl border border-gray-700">
+                    <h2 class="text-3xl font-bold text-center mb-4 text-[#FFD800]">UTT Integration Flow</h2>
+                    <p class="text-center text-gray-400 mb-8 max-w-3xl mx-auto">The most robust method, functionally identical to the Postback flow, but initiated via Impact's Universal Tracking Tag (UTT). This is for clients using the Partner Integrations Hub to manage partner code.</p>
+                    <div class="flex flex-col md:flex-row md:items-stretch md:justify-center">
+                        <div class="flex-1 bg-[#00A6ED]/20 border-2 border-[#00A6ED] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">1. UTT Tracks Event</h3>
+                            <p class="text-gray-300">A conversion is tracked via the client's UTT, which hosts tvScientific's code through the Partner Integrations Hub.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#7D3CF8]/20 border-2 border-[#7D3CF8] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">2. Real-time Postback</h3>
+                            <p class="text-gray-300">Impact sends an instant server-to-server postback to tvScientific confirming the event.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#E84855]/20 border-2 border-[#E84855] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">3. Reconciled Upload</h3>
+                            <p class="text-gray-300">tvScientific uploads a reconciled CSV containing only relevant, verified events.</p>
+                        </div>
+                        <div class="hidden md:flex md-flow-arrow"></div><div class="flow-arrow md:hidden"></div>
+                        <div class="flex-1 bg-[#FFD800]/20 border-2 border-[#FFD800] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                            <h3 class="text-xl font-bold mb-2">4. Final Processing</h3>
+                            <p class="text-gray-300">Impact processes the cleaner CSV for accurate payout.</p>
+                        </div>
                     </div>
-                    
-                    <div class="flow-arrow md:hidden"></div>
-                    <div class="hidden md:flex md-flow-arrow"></div>
-
-                    <div class="flex-1 bg-[#FFD800]/20 border-2 border-[#FFD800] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
-                        <div class="text-4xl font-black text-[#FFD800] mb-2">4</div>
-                        <h3 class="text-xl font-bold mb-2">Processing & Payout</h3>
-                        <p class="text-gray-300">Impact ingests the CSV, attributes events, and calculates the correct payout for tvScientific.</p>
-                    </div>
-
                 </div>
             </section>
 
@@ -111,19 +159,23 @@
                             <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Automated and streamlined reporting workflow.</li>
                             <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Accurate, trusted third-party attribution via Impact.</li>
                             <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Simplified and timely partner payments.</li>
-                            <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Holistic view of partnership performance in one platform.</li>
+                            <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Enhanced data reliability and reduced duplication (Postback/UTT).</li>
                         </ul>
                     </div>
                     <div class="bg-gray-700/50 p-8 rounded-xl shadow-lg border border-gray-600">
                          <h2 class="text-3xl font-bold text-center mb-6 text-[#FFD800]">Technical Snapshot</h2>
-                         <div class="flex flex-col justify-center h-full space-y-6">
+                         <div class="flex flex-col justify-center h-full space-y-4">
                             <div class="text-center">
-                                <p class="text-lg text-gray-400 uppercase tracking-wider">Data Format</p>
-                                <p class="text-5xl font-bold text-white">CSV</p>
+                                <p class="text-lg text-gray-400 uppercase tracking-wider">Primary Data Format</p>
+                                <p class="text-4xl font-bold text-white">CSV via FTP</p>
                             </div>
                             <div class="text-center">
-                                <p class="text-lg text-gray-400 uppercase tracking-wider">Transfer Method</p>
-                                <p class="text-5xl font-bold text-white">FTP</p>
+                                <p class="text-lg text-gray-400 uppercase tracking-wider">Enhanced Reliability</p>
+                                <p class="text-4xl font-bold text-white">Postback URL</p>
+                            </div>
+                             <div class="text-center">
+                                <p class="text-lg text-gray-400 uppercase tracking-wider">Advanced Tracking</p>
+                                <p class="text-4xl font-bold text-white">Universal Tracking Tag (UTT)</p>
                             </div>
                          </div>
                     </div>
@@ -133,10 +185,9 @@
         </main>
 
         <footer class="text-center mt-16 py-8 border-t border-gray-700">
-            <p class="text-gray-500">This infographic illustrates the standard data integration process.</p>
+            <p class="text-gray-500">This infographic illustrates the standard data integration processes.</p>
         </footer>
 
     </div>
-
 </body>
 </html>

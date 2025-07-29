@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact & tvScientific Integration Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .flow-arrow::after {
+            content: '▼';
+            font-size: 2rem;
+            color: #FFD800;
+            display: block;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .md-flow-arrow::after {
+            content: '►';
+            font-size: 2rem;
+            color: #FFD800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 1rem;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body class="bg-[#343434] text-white">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="text-center my-8 md:my-16">
+            <h1 class="text-4xl md:text-6xl font-black text-[#00A6ED] tracking-tight">The Impact & tvScientific Partnership</h1>
+            <p class="text-xl md:text-2xl mt-4 text-gray-300">A seamless data flow for performance-based payouts.</p>
+        </header>
+
+        <main>
+            <section id="actors" class="mb-16 md:mb-24">
+                <h2 class="text-3xl font-bold text-center mb-12 text-[#FFD800]">The Key Players</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="bg-gray-700/50 p-6 rounded-xl shadow-lg border border-gray-600">
+                        <div class="text-5xl mb-4">🏢</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Mutual Client</h3>
+                        <p class="text-gray-400">The advertiser who wants to measure the performance of their tvScientific campaigns within the Impact platform.</p>
+                    </div>
+                    <div class="bg-gray-700/50 p-6 rounded-xl shadow-lg border border-gray-600">
+                        <div class="text-5xl mb-4">📈</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Impact Platform</h3>
+                        <p class="text-gray-400">The central hub for partnership management, tracking, and payment processing.</p>
+                    </div>
+                    <div class="bg-gray-700/50 p-6 rounded-xl shadow-lg border border-gray-600">
+                        <div class="text-5xl mb-4">📺</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">tvScientific</h3>
+                        <p class="text-gray-400">The performance advertising partner driving conversions through connected TV campaigns.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="flow" class="mb-16 md:mb-24">
+                <div class="flex flex-col md:flex-row md:items-stretch md:justify-center">
+                    
+                    <div class="flex-1 bg-[#00A6ED]/20 border-2 border-[#00A6ED] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                        <div class="text-4xl font-black text-[#00A6ED] mb-2">1</div>
+                        <h3 class="text-xl font-bold mb-2">Initial Setup</h3>
+                        <p class="text-gray-300">The Mutual Client creates a dedicated FTP event delivery for tvScientific within their Impact account.</p>
+                    </div>
+
+                    <div class="flow-arrow md:hidden"></div>
+                    <div class="hidden md:flex md-flow-arrow"></div>
+
+                    <div class="flex-1 bg-[#7D3CF8]/20 border-2 border-[#7D3CF8] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                        <div class="text-4xl font-black text-[#7D3CF8] mb-2">2</div>
+                        <h3 class="text-xl font-bold mb-2">Event Tracking</h3>
+                        <p class="text-gray-300">tvScientific's platform tracks conversions and other key events driven by their campaigns for the client.</p>
+                    </div>
+
+                    <div class="flow-arrow md:hidden"></div>
+                    <div class="hidden md:flex md-flow-arrow"></div>
+
+                    <div class="flex-1 bg-[#E84855]/20 border-2 border-[#E84855] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                        <div class="text-4xl font-black text-[#E84855] mb-2">3</div>
+                        <h3 class="text-xl font-bold mb-2">Data Upload</h3>
+                        <p class="text-gray-300">tvScientific uploads a CSV file of tracked events to the client's secure FTP endpoint on Impact.</p>
+                    </div>
+                    
+                    <div class="flow-arrow md:hidden"></div>
+                    <div class="hidden md:flex md-flow-arrow"></div>
+
+                    <div class="flex-1 bg-[#FFD800]/20 border-2 border-[#FFD800] p-6 rounded-xl shadow-lg text-center flex flex-col justify-center">
+                        <div class="text-4xl font-black text-[#FFD800] mb-2">4</div>
+                        <h3 class="text-xl font-bold mb-2">Processing & Payout</h3>
+                        <p class="text-gray-300">Impact ingests the CSV, attributes events, and calculates the correct payout for tvScientific.</p>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="benefits" class="mb-16 md:mb-24">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gray-700/50 p-8 rounded-xl shadow-lg border border-gray-600">
+                        <h2 class="text-3xl font-bold text-center mb-6 text-[#FFD800]">Key Benefits</h2>
+                        <ul class="space-y-4 text-lg text-gray-300">
+                            <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Automated and streamlined reporting workflow.</li>
+                            <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Accurate, trusted third-party attribution via Impact.</li>
+                            <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Simplified and timely partner payments.</li>
+                            <li class="flex items-start"><span class="text-2xl text-[#00A6ED] mr-3">✔</span> Holistic view of partnership performance in one platform.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-700/50 p-8 rounded-xl shadow-lg border border-gray-600">
+                         <h2 class="text-3xl font-bold text-center mb-6 text-[#FFD800]">Technical Snapshot</h2>
+                         <div class="flex flex-col justify-center h-full space-y-6">
+                            <div class="text-center">
+                                <p class="text-lg text-gray-400 uppercase tracking-wider">Data Format</p>
+                                <p class="text-5xl font-bold text-white">CSV</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-lg text-gray-400 uppercase tracking-wider">Transfer Method</p>
+                                <p class="text-5xl font-bold text-white">FTP</p>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-16 py-8 border-t border-gray-700">
+            <p class="text-gray-500">This infographic illustrates the standard data integration process.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

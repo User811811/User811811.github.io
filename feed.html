@@ -27,6 +27,9 @@
             border-color: #0d9488; /* teal-600 */
             background-color: #f0fdfa; /* teal-50 */
         }
+        .preview-value {
+            min-height: 1.5rem; /* Ensure space even if empty */
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -51,13 +54,23 @@
                 </div>
             </div>
 
-            <!-- Wrapper for panels 2, 3, and 4. Hidden by default. -->
+            <!-- Wrapper for panels 2, 3, 4, 5 and 6. Hidden by default. -->
             <div id="mapping-content" class="hidden space-y-8">
                 <!-- Panel 2: Available Fields -->
                 <div id="parsed-data-container" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                      <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold text-gray-900">2. Available Fields</h2>
-                        <button id="clear-button" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">Clear</button>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <span id="sort-label-file" class="text-sm font-medium text-teal-700 transition-colors">File Order</span>
+                                <label for="sort-toggle" class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="sort-toggle" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-teal-200 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+                                </label>
+                                <span id="sort-label-alpha" class="text-sm font-medium text-gray-400 transition-colors">Alphabetical</span>
+                            </div>
+                            <button id="clear-button" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">Clear</button>
+                        </div>
                     </div>
                     <p class="text-sm text-gray-600 mb-4">Click to copy, or drag & drop a field onto a property on the lower left.</p>
                     <div id="parsed-data" class="max-h-96 overflow-y-auto bg-gray-50 p-3 rounded-md space-y-2">
@@ -84,6 +97,46 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Panel 5: Preview Panel -->
+                <div id="preview-panel" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900">5. Data Preview</h2>
+                    <p class="text-sm text-gray-600 mb-6">A preview of the first two items from your file using the suggested mappings. Use this to sense-check the results.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Preview Item 1 -->
+                        <div class="border border-gray-200 rounded-lg p-4 space-y-2 bg-gray-50">
+                            <h3 class="font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-2">Preview Item 1</h3>
+                            <div id="preview-item-1" class="text-sm space-y-2">
+                                <!-- Preview data for item 1 injected here -->
+                            </div>
+                        </div>
+                        <!-- Preview Item 2 -->
+                        <div class="border border-gray-200 rounded-lg p-4 space-y-2 bg-gray-50">
+                            <h3 class="font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-2">Preview Item 2</h3>
+                            <div id="preview-item-2" class="text-sm space-y-2">
+                                <!-- Preview data for item 2 injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 6: Raw Data Preview -->
+                <div id="raw-data-panel" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900">6. Raw Data Preview</h2>
+                    <p class="text-sm text-gray-600 mb-6">The first two raw records from your file, pretty-printed to verify correct parsing.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Raw Item 1 -->
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <h3 class="font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-2">Raw Record 1</h3>
+                            <pre class="text-xs overflow-x-auto p-2 bg-gray-100 rounded h-64"><code id="raw-item-1"></code></pre>
+                        </div>
+                        <!-- Raw Item 2 -->
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <h3 class="font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-2">Raw Record 2</h3>
+                            <pre class="text-xs overflow-x-auto p-2 bg-gray-100 rounded h-64"><code id="raw-item-2"></code></pre>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -102,9 +155,20 @@
             const propertyGrid = document.getElementById('property-grid');
             const suggestionPanel = document.getElementById('suggestions-panel');
             const suggestionGrid = document.getElementById('suggestion-grid');
+            const previewPanel = document.getElementById('preview-panel');
+            const previewItem1 = document.getElementById('preview-item-1');
+            const previewItem2 = document.getElementById('preview-item-2');
+            const rawItem1 = document.getElementById('raw-item-1');
+            const rawItem2 = document.getElementById('raw-item-2');
             const clearButton = document.getElementById('clear-button');
             const toast = document.getElementById('toast');
             const mappingContent = document.getElementById('mapping-content');
+            const sortToggle = document.getElementById('sort-toggle');
+            const sortLabelFile = document.getElementById('sort-label-file');
+            const sortLabelAlpha = document.getElementById('sort-label-alpha');
+
+            let originalFields = [];
+            let sortedFields = [];
             
             // --- PROPERTIES ---
             const properties = [
@@ -160,12 +224,9 @@
                    }); 
                 });
 
-                // Add click-to-copy for suggestion cards
                 suggestionGrid.querySelectorAll('.property-card').forEach(card => {
                     card.addEventListener('click', (e) => {
-                        // Ensure the click is not on the button
                         if (e.target.tagName.toLowerCase() === 'button') return;
-                        
                         const input = card.querySelector('input');
                         if (input && input.value) {
                             navigator.clipboard.writeText(input.value)
@@ -176,12 +237,37 @@
                 });
             }
 
+            function initializePreviewPanel() {
+                const previewHTML = properties.map(prop => {
+                    const propId = getPropId(prop);
+                    return `
+                        <div>
+                            <strong class="text-gray-600">${prop}:</strong>
+                            <div id="preview-${propId}" class="preview-value text-gray-800 font-mono bg-gray-100 p-1 rounded"></div>
+                        </div>
+                    `;
+                }).join('');
+                previewItem1.innerHTML = previewHTML.replace(/id="preview-/g, 'id="preview-1-');
+                previewItem2.innerHTML = previewHTML.replace(/id="preview-/g, 'id="preview-2-');
+            }
+
+
             // --- EVENT LISTENERS ---
             fileUpload.addEventListener('change', handleFile);
             clearButton.addEventListener('click', resetApp);
 
+            sortToggle.addEventListener('change', () => {
+                const isAlphabetical = sortToggle.checked;
+                displayParsedData(isAlphabetical ? sortedFields : originalFields);
+                
+                sortLabelAlpha.classList.toggle('text-teal-700', isAlphabetical);
+                sortLabelAlpha.classList.toggle('text-gray-400', !isAlphabetical);
+                
+                sortLabelFile.classList.toggle('text-teal-700', !isAlphabetical);
+                sortLabelFile.classList.toggle('text-gray-400', isAlphabetical);
+            });
+
             function addPropertyEventListeners() {
-                // Paste buttons
                 propertyGrid.querySelectorAll('.paste-button').forEach(button => {
                     button.addEventListener('click', async () => {
                         const input = button.previousElementSibling;
@@ -190,28 +276,19 @@
                             input.value = text;
                         } catch (err) {
                             console.error('Failed to read clipboard contents: ', err);
-                            alert('Could not paste from clipboard. Please ensure you have granted permission.');
                         }
                     });
                 });
 
-                // Drag and drop
                 propertyGrid.querySelectorAll('.property-card').forEach(card => {
-                    card.addEventListener('dragover', e => {
-                        e.preventDefault();
-                        card.classList.add('drag-over');
-                    });
-                    card.addEventListener('dragleave', () => {
-                        card.classList.remove('drag-over');
-                    });
+                    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+                    card.addEventListener('dragleave', () => { card.classList.remove('drag-over'); });
                     card.addEventListener('drop', e => {
                         e.preventDefault();
                         card.classList.remove('drag-over');
                         const data = e.dataTransfer.getData('text/plain');
                         const input = card.querySelector('input');
-                        if (input) {
-                            input.value = data;
-                        }
+                        if (input) input.value = data;
                     });
                 });
             }
@@ -219,10 +296,7 @@
             // --- CORE LOGIC ---
             function handleFile(event) {
                 const file = event.target.files[0];
-                if (!file) {
-                    fileNameDisplay.textContent = 'No file selected';
-                    return;
-                }
+                if (!file) return;
 
                 fileNameDisplay.textContent = file.name;
                 const reader = new FileReader();
@@ -232,15 +306,24 @@
                     const fileType = file.name.split('.').pop().toLowerCase();
                     
                     try {
-                        let fields = [];
-                        if (fileType === 'xml') fields = parseXML(content);
-                        else if (fileType === 'csv') fields = parseDelimited(content, ',');
-                        else if (fileType === 'txt') fields = parseDelimited(content, '\t');
-                        else if (fileType === 'psv') fields = parseDelimited(content, '|');
+                        let parsedResult;
+                        if (fileType === 'xml') parsedResult = parseXML(content);
+                        else if (fileType === 'csv') parsedResult = parseDelimited(content, ',');
+                        else if (fileType === 'txt') parsedResult = parseDelimited(content, '\t');
+                        else if (fileType === 'psv') parsedResult = parseDelimited(content, '|');
                         else throw new Error('Unsupported file type.');
                         
-                        displayParsedData(fields);
-                        generateSuggestions(fields);
+                        const { fields, records } = parsedResult;
+                        
+                        originalFields = fields;
+                        sortedFields = [...fields].sort((a, b) => a.localeCompare(b));
+
+                        displayParsedData(originalFields); // Default to file order
+                        const suggestions = generateSuggestions(fields);
+                        displaySuggestions(suggestions);
+                        displayPreview(records, suggestions);
+                        displayRawData(records);
+
                         mappingContent.classList.remove('hidden');
 
                     } catch (error) {
@@ -260,116 +343,185 @@
                 parsedDataDiv.innerHTML = '';
                 propertyGrid.querySelectorAll('input').forEach(input => input.value = '');
                 suggestionGrid.querySelectorAll('input').forEach(input => input.value = '');
+                previewItem1.innerHTML = '';
+                previewItem2.innerHTML = '';
+                rawItem1.textContent = '';
+                rawItem2.textContent = '';
+                sortToggle.checked = false; // Reset toggle
+                sortLabelFile.classList.add('text-teal-700');
+                sortLabelFile.classList.remove('text-gray-400');
+                sortLabelAlpha.classList.add('text-gray-400');
+                sortLabelAlpha.classList.remove('text-teal-700');
+                initializePreviewPanel(); // Re-initialize for next upload
             }
 
             function parseXML(xmlString) {
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlString, "application/xml");
                 if (xmlDoc.getElementsByTagName("parsererror").length) throw new Error("Invalid XML format.");
-                const paths = new Set();
-                function traverse(node, path) {
-                    if (node.nodeType !== Node.ELEMENT_NODE) return;
-                    const currentPath = path ? `${path}/${node.nodeName}` : node.nodeName;
-                    let hasElementChild = Array.from(node.childNodes).some(n => n.nodeType === Node.ELEMENT_NODE);
-                    if (!hasElementChild) paths.add(currentPath);
-                    for (const childNode of node.children) traverse(childNode, currentPath);
+
+                const root = xmlDoc.documentElement;
+                if (!root) throw new Error("Could not find root element in XML.");
+
+                const paths = []; // Use array to preserve order
+                const records = [];
+                const itemNodes = root.children;
+                const rootNodeName = root.nodeName;
+
+                const addUniquePath = (path) => {
+                    if (!paths.includes(path)) {
+                        paths.push(path);
+                    }
+                };
+
+                // Common case: <products><product>...</product><product>...</product></products>
+                if (itemNodes.length > 0) {
+                    for (let i = 0; i < Math.min(itemNodes.length, 2); i++) {
+                        const record = {};
+                        const itemNode = itemNodes[i];
+
+                        const buildRecordDfs = (node, path) => {
+                            const hasElementChild = Array.from(node.children).length > 0;
+                            
+                            if (!hasElementChild && node.textContent.trim()) {
+                                // Only add paths to the master list when processing the first record
+                                // to maintain the order from the first item.
+                                if (i === 0) {
+                                    addUniquePath(path);
+                                }
+                                record[path] = node.textContent.trim();
+                            } else {
+                                for (const child of node.children) {
+                                    buildRecordDfs(child, `${path}/${child.nodeName}`);
+                                }
+                            }
+                        };
+                        
+                        buildRecordDfs(itemNode, `${rootNodeName}/${itemNode.nodeName}`);
+                        records.push(record);
+                    }
+                    
+                    // Ensure all paths found in the second record are also included, in case the structure varies.
+                    if (records.length > 1) {
+                        Object.keys(records[1]).forEach(path => addUniquePath(path));
+                    }
+                } else {
+                     // Fallback case: <root><name>A</name><price>10</price></root>
+                    const record = {};
+                    const buildRecordAndFieldsDfs = (node, path) => {
+                        const hasElementChild = Array.from(node.children).length > 0;
+                        
+                        if (!hasElementChild && node.textContent.trim()) {
+                            addUniquePath(path);
+                            record[path] = node.textContent.trim();
+                        } else {
+                            for (const child of node.children) {
+                                buildRecordAndFieldsDfs(child, `${path}/${child.nodeName}`);
+                            }
+                        }
+                    };
+                    buildRecordAndFieldsDfs(root, rootNodeName);
+                    records.push(record);
                 }
-                traverse(xmlDoc.documentElement, '');
-                return Array.from(paths).sort();
+
+                return { fields: paths, records };
             }
 
             function parseDelimited(data, delimiter) {
-                const lines = data.split(/\r?\n/);
-                if (lines.length === 0) return [];
-                const header = lines[0].split(delimiter).map(h => h.trim().replace(/"/g, ''));
-                if (header.length === 0 || (header.length === 1 && header[0] === '')) throw new Error('Could not parse header row.');
-                return header;
+                const lines = data.split(/\r?\n/).filter(line => line.trim() !== '');
+                if (lines.length < 1) return { fields: [], records: [] };
+                
+                const fields = lines[0].split(delimiter).map(h => h.trim().replace(/"/g, ''));
+                if (fields.length === 0 || (fields.length === 1 && fields[0] === '')) throw new Error('Could not parse header row.');
+
+                const records = [];
+                for(let i = 1; i < Math.min(lines.length, 3); i++) { // Get up to 2 records
+                    const values = lines[i].split(delimiter);
+                    const record = {};
+                    fields.forEach((field, index) => {
+                        record[field] = (values[index] || '').trim().replace(/"/g, '');
+                    });
+                    records.push(record);
+                }
+                return { fields, records };
             }
 
             function displayParsedData(fields) {
-                // Clear previous fields
                 parsedDataDiv.innerHTML = '';
-
                 if (fields.length === 0) {
                     parsedDataDiv.innerHTML = `<p class="text-sm text-gray-500">No fields could be extracted.</p>`;
-                } else {
-                    fields.forEach(field => {
-                        const fieldElement = document.createElement('div');
-                        fieldElement.className = 'p-2 bg-white border border-gray-200 rounded-md text-sm font-mono cursor-pointer hover:bg-teal-50 hover:border-teal-300';
-                        fieldElement.textContent = field;
-                        fieldElement.draggable = true;
-                        
-                        // Add click-to-copy listener
-                        fieldElement.addEventListener('click', () => {
-                            navigator.clipboard.writeText(field)
-                                .then(showToast)
-                                .catch(err => console.error('Failed to copy text: ', err));
-                        });
-
-                        // Add drag start listener
-                        fieldElement.addEventListener('dragstart', e => {
-                            e.dataTransfer.setData('text/plain', field);
-                        });
-
-                        parsedDataDiv.appendChild(fieldElement);
-                    });
+                    return;
                 }
-                parsedDataContainer.classList.remove('hidden');
+                fields.forEach(field => {
+                    const fieldElement = document.createElement('div');
+                    fieldElement.className = 'p-2 bg-white border border-gray-200 rounded-md text-sm font-mono cursor-pointer hover:bg-teal-50 hover:border-teal-300';
+                    fieldElement.textContent = field;
+                    fieldElement.draggable = true;
+                    fieldElement.addEventListener('click', () => { navigator.clipboard.writeText(field).then(showToast); });
+                    fieldElement.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', field); });
+                    parsedDataDiv.appendChild(fieldElement);
+                });
             }
             
-            // --- SUGGESTIONS LOGIC ---
+            // --- SUGGESTIONS & PREVIEW LOGIC ---
             function getMatchScore(propertyName, fieldName) {
                 const propWords = new Set(propertyName.toLowerCase().replace(/field/g, '').match(/\b\w+\b/g) || []);
                 const fieldWords = new Set(fieldName.toLowerCase().match(/\b\w+\b/g) || []);
-
                 if (propWords.size === 0 || fieldWords.size === 0) return 0;
-
                 let intersection = new Set([...propWords].filter(x => fieldWords.has(x)));
                 let score = intersection.size;
-                
-                // Bonus for direct substring matches
                 const cleanProp = Array.from(propWords).join('');
                 const cleanField = fieldName.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-                if (cleanField.includes(cleanProp) || cleanProp.includes(cleanField) && cleanProp.length > 2) {
-                    score += 2;
-                }
-                // Bonus for common keywords
+                if (cleanField.includes(cleanProp) || cleanProp.includes(cleanField) && cleanProp.length > 2) score += 2;
                 if ((propWords.has('id') && fieldWords.has('id')) || (propWords.has('sku') && fieldWords.has('sku'))) score += 3;
                 if (propWords.has('url') && fieldWords.has('url')) score += 3;
                 if (propWords.has('image') && fieldWords.has('image')) score += 3;
-                
                 return score;
             }
 
             function generateSuggestions(fields) {
                 const suggestions = {};
                 properties.forEach(prop => {
-                    let bestMatch = '';
-                    let highestScore = 0;
-                    
+                    let bestMatch = ''; let highestScore = 0;
                     fields.forEach(field => {
                         const score = getMatchScore(prop, field);
                         if (score > highestScore) {
-                            highestScore = score;
-                            bestMatch = field;
+                            highestScore = score; bestMatch = field;
                         }
                     });
-                    
                     suggestions[prop] = highestScore > 0 ? bestMatch : '';
                 });
-                displaySuggestions(suggestions);
-                suggestionPanel.classList.remove('hidden');
+                return suggestions;
             }
             
             function displaySuggestions(suggestions) {
                 for(const prop in suggestions) {
-                    const propId = getPropId(prop);
-                    const input = document.getElementById(`suggestion-${propId}`);
-                    if (input) {
-                        input.value = suggestions[prop];
-                    }
+                    const input = document.getElementById(`suggestion-${getPropId(prop)}`);
+                    if (input) input.value = suggestions[prop];
                 }
+            }
+
+            function displayPreview(records, suggestions) {
+                const record1 = records[0] || {};
+                const record2 = records[1] || {};
+
+                properties.forEach(prop => {
+                    const suggestedField = suggestions[prop];
+                    const propId = getPropId(prop);
+                    
+                    const val1 = suggestedField && record1[suggestedField] ? record1[suggestedField] : '—';
+                    const val2 = suggestedField && record2[suggestedField] ? record2[suggestedField] : '—';
+
+                    document.getElementById(`preview-1-${propId}`).textContent = val1;
+                    document.getElementById(`preview-2-${propId}`).textContent = val2;
+                });
+            }
+
+            function displayRawData(records) {
+                const record1 = records[0] || {};
+                const record2 = records[1] || {};
+                rawItem1.textContent = JSON.stringify(record1, null, 2);
+                rawItem2.textContent = JSON.stringify(record2, null, 2);
             }
             
             function showToast() {
@@ -384,6 +536,7 @@
             // Initial setup
             initializeProperties();
             initializeSuggestionPanel();
+            initializePreviewPanel();
         });
     </script>
 </body>

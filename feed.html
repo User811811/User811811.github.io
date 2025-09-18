@@ -59,7 +59,7 @@
                         <h2 class="text-xl font-semibold text-gray-900">2. Available Fields</h2>
                         <button id="clear-button" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">Clear</button>
                     </div>
-                    <p class="text-sm text-gray-600 mb-4">Click to copy, or drag & drop a field onto a property on the right.</p>
+                    <p class="text-sm text-gray-600 mb-4">Click to copy, or drag & drop a field onto a property on the lower left.</p>
                     <div id="parsed-data" class="max-h-96 overflow-y-auto bg-gray-50 p-3 rounded-md space-y-2">
                         <!-- Parsed data will be injected here -->
                     </div>
@@ -70,7 +70,7 @@
                     <!-- Panel 3: Manual Mapping -->
                     <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                         <h2 class="text-xl font-semibold mb-4 text-gray-900">3. Map Properties (Manual)</h2>
-                         <p class="text-sm text-gray-600 mb-6">Enter the column name or XPath for each catalog property.</p>
+                         <p class="text-sm text-gray-600 mb-6">Drag and drop or paste an available field for each catalog property that does not have the correct suggestion present.</p>
                         <div id="property-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Property fields will be injected here -->
                         </div>
@@ -78,7 +78,7 @@
                     <!-- Panel 4: Suggestions -->
                     <div id="suggestions-panel" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                         <h2 class="text-xl font-semibold mb-4 text-gray-900">4. Final Output (with Suggestions)</h2>
-                         <p class="text-sm text-gray-600 mb-6">Automated suggestions are filled below. Correct them or use the button to pull your manually mapped value.</p>
+                         <p class="text-sm text-gray-600 mb-6">Automated suggestions are filled below. Use the button to pull your manually mapped value if they are incorrect.</p>
                         <div id="suggestion-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Suggestion fields will be injected here -->
                         </div>

@@ -30,6 +30,19 @@
         .preview-value {
             min-height: 1.5rem; /* Ensure space even if empty */
         }
+        .suggestion-preview {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out, padding 0.3s ease-out, border-width 0.3s ease-out;
+            max-height: 80px; /* starting height */
+        }
+        .suggestion-preview-hidden {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border-width: 0;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -83,9 +96,9 @@
 
                     <!-- Panel 3: Manual Mapping -->
                     <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                        <h2 class="text-xl font-semibold mb-4 text-gray-900">Map Properties (Manual)</h2>
-                         <p class="text-sm text-gray-600 mb-6">Drag and drop or paste an available field for each catalog property that does not have the correct suggestion present.</p>
-                        <div id="property-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-900">Map Properties</h2>
+                         <p class="text-sm text-gray-600 mb-6">Drag and drop, paste, or accept a suggestion for each property.</p>
+                        <div id="property-grid" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
                             <!-- Property fields will be injected here -->
                         </div>
                     </div>
@@ -93,10 +106,15 @@
 
                 <!-- Panel 4: Suggestions -->
                 <div id="suggestions-panel" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-900">Final Output (with Suggestions)</h2>
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900">Final Output</h2>
                      <p class="text-sm text-gray-600 mb-6">Automated suggestions are filled below. Use the button to pull your manually mapped value if they are incorrect.</p>
                     <div id="suggestion-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <!-- Suggestion fields will be injected here -->
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button id="map-all-unmapped-btn" class="action-button bg-teal-600 text-white px-4 py-2 rounded-md font-medium hover:bg-teal-700 text-sm">
+                            Map All Unmapped Fields
+                        </button>
                     </div>
                 </div>
 
@@ -168,6 +186,7 @@
             const sortToggle = document.getElementById('sort-toggle');
             const sortLabelFile = document.getElementById('sort-label-file');
             const sortLabelAlpha = document.getElementById('sort-label-alpha');
+            const mapAllUnmappedBtn = document.getElementById('map-all-unmapped-btn');
 
             let originalFields = [];
             let sortedFields = [];
@@ -189,13 +208,29 @@
                 propertyGrid.innerHTML = properties.map(prop => {
                     const propId = getPropId(prop);
                     return `
-                    <div class="property-card bg-white rounded-lg p-0" data-prop-name="${prop}">
+                    <div class="property-card bg-white rounded-lg py-2" data-prop-name="${prop}">
                         <label for="${propId}" class="block text-sm font-medium text-gray-700 mb-1">${prop}</label>
                         <div class="relative">
                             <input type="text" id="${propId}" class="w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm" placeholder="Drag a field here">
                              <button class="paste-button absolute inset-y-0 right-0 flex items-center pr-3" title="Paste from clipboard">
                                 <svg class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                             </button>
+                        </div>
+                        <div id="manual-suggestion-${propId}" class="suggestion-preview suggestion-preview-hidden mt-2 p-2 bg-teal-50 border border-teal-200 rounded-md text-sm">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-2 truncate">
+                                    <span class="text-gray-600">Suggestion:</span>
+                                    <strong class="font-mono text-teal-800 truncate" title=""></strong>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="suggestion-accept p-1 rounded-full hover:bg-green-200" title="Accept Suggestion">
+                                        <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    </button>
+                                    <button class="suggestion-reject p-1 rounded-full hover:bg-red-200" title="Reject Suggestion">
+                                        <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `}).join('');
@@ -234,7 +269,7 @@
                         const input = card.querySelector('input');
                         if (input && input.value) {
                             navigator.clipboard.writeText(input.value)
-                                .then(showToast)
+                                .then(() => showToast())
                                 .catch(err => console.error('Could not copy text: ', err));
                         }
                     });
@@ -270,6 +305,29 @@
                 sortLabelFile.classList.toggle('text-teal-700', !isAlphabetical);
                 sortLabelFile.classList.toggle('text-gray-400', isAlphabetical);
             });
+            
+            mapAllUnmappedBtn.addEventListener('click', () => {
+                properties.forEach(prop => {
+                    const propId = getPropId(prop);
+                    const suggestionInput = document.getElementById(`suggestion-${propId}`);
+                    
+                    if (suggestionInput && !suggestionInput.value) {
+                        const manualInput = document.getElementById(propId);
+                        if (manualInput && manualInput.value) {
+                            suggestionInput.value = manualInput.value;
+                        }
+                    }
+                });
+                updatePreview();
+                showToast('Filled unmapped fields.');
+            });
+
+            function hideSuggestionPreview(element) {
+                element.classList.add('suggestion-preview-hidden');
+                setTimeout(() => {
+                    // Optional: could add 'hidden' if issues arise with layout space
+                }, 300); // match transition duration
+            }
 
             function addPropertyEventListeners() {
                 propertyGrid.querySelectorAll('.paste-button').forEach(button => {
@@ -293,6 +351,30 @@
                         const data = e.dataTransfer.getData('text/plain');
                         const input = card.querySelector('input');
                         if (input) input.value = data;
+                    });
+                });
+
+                propertyGrid.querySelectorAll('.suggestion-accept').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const card = button.closest('.property-card');
+                        const propName = card.dataset.propName;
+                        const propId = getPropId(propName);
+                        const input = document.getElementById(propId);
+                        const suggestionPreview = document.getElementById(`manual-suggestion-${propId}`);
+                        const suggestionText = suggestionPreview.querySelector('strong').title;
+
+                        input.value = suggestionText;
+                        hideSuggestionPreview(suggestionPreview);
+                    });
+                });
+                
+                propertyGrid.querySelectorAll('.suggestion-reject').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const card = button.closest('.property-card');
+                        const propName = card.dataset.propName;
+                        const propId = getPropId(propName);
+                        const suggestionPreview = document.getElementById(`manual-suggestion-${propId}`);
+                        hideSuggestionPreview(suggestionPreview);
                     });
                 });
             }
@@ -326,6 +408,7 @@
                         displayParsedData(originalFields); // Default to file order
                         const suggestions = generateSuggestions(fields);
                         displaySuggestions(suggestions);
+                        displayManualSuggestions(suggestions);
                         displayInitialPreview(suggestions);
                         displayRawData(records);
 
@@ -347,6 +430,12 @@
                 mappingContent.classList.add('hidden');
                 parsedDataDiv.innerHTML = '';
                 propertyGrid.querySelectorAll('input').forEach(input => input.value = '');
+                
+                propertyGrid.querySelectorAll('.suggestion-preview').forEach(preview => {
+                    preview.classList.add('suggestion-preview-hidden');
+                    preview.querySelector('strong').textContent = '';
+                });
+
                 suggestionGrid.querySelectorAll('input').forEach(input => input.value = '');
                 previewItem1.innerHTML = '';
                 previewItem2.innerHTML = '';
@@ -462,7 +551,7 @@
                     fieldElement.className = 'p-2 bg-white border border-gray-200 rounded-md text-sm font-mono cursor-pointer hover:bg-teal-50 hover:border-teal-300';
                     fieldElement.textContent = field;
                     fieldElement.draggable = true;
-                    fieldElement.addEventListener('click', () => { navigator.clipboard.writeText(field).then(showToast); });
+                    fieldElement.addEventListener('click', () => { navigator.clipboard.writeText(field).then(() => showToast()); });
                     fieldElement.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', field); });
                     parsedDataDiv.appendChild(fieldElement);
                 });
@@ -506,6 +595,22 @@
                 }
             }
 
+            function displayManualSuggestions(suggestions) {
+                properties.forEach(prop => {
+                    const propId = getPropId(prop);
+                    const suggestion = suggestions[prop];
+                    const previewContainer = document.getElementById(`manual-suggestion-${propId}`);
+                    
+                    if (previewContainer && suggestion) {
+                        const suggestionTextElement = previewContainer.querySelector('strong');
+                        const shortSuggestion = suggestion.includes('/') ? `.../${suggestion.split('/').pop()}` : suggestion;
+                        suggestionTextElement.textContent = shortSuggestion;
+                        suggestionTextElement.title = suggestion; // The full path is stored here
+                        previewContainer.classList.remove('suggestion-preview-hidden');
+                    }
+                });
+            }
+
             function displayInitialPreview(suggestions) {
                 const record1 = currentRecords[0] || {};
                 const record2 = currentRecords[1] || {};
@@ -546,7 +651,8 @@
                 rawItem2.textContent = JSON.stringify(record2, null, 2);
             }
             
-            function showToast() {
+            function showToast(message = 'Copied to clipboard!') {
+                toast.querySelector('p').textContent = message;
                 toast.classList.remove('translate-y-20', 'opacity-0');
                 toast.classList.add('translate-y-0', 'opacity-100');
                 setTimeout(() => {

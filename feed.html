@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,12 +9,11 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
         }
-        .file-input-button, .theme-toggle-button {
+        .action-button {
             transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .file-input-button:hover, .theme-toggle-button:hover {
+        .action-button:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .property-card {
@@ -22,78 +21,67 @@
         }
         .property-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-        }
-        html.dark .property-card:hover {
-             box-shadow: 0 8px 16px rgba(255,255,255,0.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
         .drag-over {
-            border-color: #4f46e5; /* indigo-600 */
-            background-color: #eef2ff; /* indigo-50 */
-        }
-        html.dark .drag-over {
-             border-color: #818cf8; /* indigo-400 */
-             background-color: #312e81; /* indigo-900 */
+            border-color: #6366f1; /* indigo-500 */
+            background-color: #374151; /* gray-700 */
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+<body class="bg-slate-900 text-slate-200">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-8 relative">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Catalog Data Mapper</h1>
-            <p class="text-md text-gray-600 dark:text-gray-400 mt-2">Upload your data file to map fields to catalog properties.</p>
-            <button id="theme-toggle" class="theme-toggle-button absolute top-0 right-0 p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <svg id="theme-icon-light" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-            </button>
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white">Catalog Data Mapper</h1>
+            <p class="text-md text-slate-400 mt-2">Upload your data file to map fields to catalog properties.</p>
         </header>
 
-        <main class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            <!-- Left Column -->
-            <div class="space-y-6">
-                 <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">1. Upload Your File</h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Supports XML, CSV, TXT (tab-separated), and PSV (pipe-separated) files.</p>
-                    <div class="flex items-center space-x-4">
-                        <label for="file-upload" class="file-input-button cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700">
-                            Choose File
-                        </label>
-                        <input id="file-upload" type="file" class="hidden" accept=".xml,.csv,.txt,.psv">
-                        <span id="file-name" class="text-sm text-gray-500 dark:text-gray-400 truncate">No file selected</span>
-                    </div>
-                </div>
-
-                <div id="parsed-data-container" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 hidden">
-                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">2. Available Fields</h2>
-                        <button id="clear-button" class="text-sm bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium py-1 px-3 rounded-md transition-colors">Clear</button>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Click to copy, or drag & drop a field onto a property on the right.</p>
-                    <div id="parsed-data" class="max-h-96 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-3 rounded-md space-y-2">
-                        <!-- Parsed data will be injected here -->
-                    </div>
+        <main class="space-y-8">
+            <!-- Panel 1: Upload File -->
+            <div class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
+                <h2 class="text-xl font-semibold mb-4 text-white">1. Upload Your File</h2>
+                <p class="text-sm text-slate-400 mb-4">Supports XML, CSV, TXT (tab-separated), and PSV (pipe-separated) files.</p>
+                <div class="flex items-center space-x-4">
+                    <label for="file-upload" class="action-button cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700">
+                        Choose File
+                    </label>
+                    <input id="file-upload" type="file" class="hidden" accept=".xml,.csv,.txt,.psv">
+                    <span id="file-name" class="text-sm text-slate-400 truncate">No file selected</span>
                 </div>
             </div>
 
-            <!-- Right Column -->
-            <div class="space-y-6">
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">3. Map Properties (Manual)</h2>
-                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Enter the column name or XPath for each catalog property.</p>
-                    <div id="property-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Property fields will be injected here -->
+            <!-- Wrapper for panels 2, 3, and 4. Hidden by default. -->
+            <div id="mapping-content" class="hidden space-y-8">
+                <!-- Panel 2: Available Fields -->
+                <div id="parsed-data-container" class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
+                     <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-white">2. Available Fields</h2>
+                        <button id="clear-button" class="text-sm bg-slate-600 hover:bg-slate-500 text-slate-200 font-medium py-1 px-3 rounded-md transition-colors">Clear</button>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-4">Click to copy, or drag & drop a field onto a property below.</p>
+                    <div id="parsed-data" class="max-h-96 overflow-y-auto bg-slate-900 p-3 rounded-md space-y-2">
+                        <!-- Parsed data will be injected here -->
                     </div>
                 </div>
-                <div id="suggestions-panel" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 hidden">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">4. Final Output (with Suggestions)</h2>
-                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Automated suggestions are filled below. Correct them or use the button to pull your manually mapped value.</p>
-                    <div id="suggestion-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Suggestion fields will be injected here -->
+
+                <!-- Grid Wrapper for panels 3 and 4 -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <!-- Panel 3: Manual Mapping -->
+                    <div class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
+                        <h2 class="text-xl font-semibold mb-4 text-white">3. Map Properties (Manual)</h2>
+                         <p class="text-sm text-slate-400 mb-6">Enter the column name or XPath for each catalog property.</p>
+                        <div id="property-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Property fields will be injected here -->
+                        </div>
+                    </div>
+                    <!-- Panel 4: Suggestions -->
+                    <div id="suggestions-panel" class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
+                        <h2 class="text-xl font-semibold mb-4 text-white">4. Final Output (with Suggestions)</h2>
+                         <p class="text-sm text-slate-400 mb-6">Automated suggestions are filled below. Correct them or use the button to pull your manually mapped value.</p>
+                        <div id="suggestion-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Suggestion fields will be injected here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -116,35 +104,8 @@
             const suggestionGrid = document.getElementById('suggestion-grid');
             const clearButton = document.getElementById('clear-button');
             const toast = document.getElementById('toast');
-            const themeToggle = document.getElementById('theme-toggle');
-            const lightIcon = document.getElementById('theme-icon-light');
-            const darkIcon = document.getElementById('theme-icon-dark');
+            const mappingContent = document.getElementById('mapping-content');
             
-            // --- THEME ---
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                    lightIcon.classList.add('hidden');
-                    darkIcon.classList.remove('hidden');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                    lightIcon.classList.remove('hidden');
-                    darkIcon.classList.add('hidden');
-                }
-            };
-            
-            themeToggle.addEventListener('click', () => {
-                const isDark = document.documentElement.classList.contains('dark');
-                const newTheme = isDark ? 'light' : 'dark';
-                localStorage.setItem('theme', newTheme);
-                applyTheme(newTheme);
-            });
-            
-            // On page load, apply saved theme or system preference
-            const savedTheme = localStorage.getItem('theme');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
-
             // --- PROPERTIES ---
             const properties = [
                 'Link URL Field', 'Catalog Item ID Field', 'Name Field', 'Description Field',
@@ -161,12 +122,12 @@
                 propertyGrid.innerHTML = properties.map(prop => {
                     const propId = getPropId(prop);
                     return `
-                    <div class="property-card bg-white dark:bg-gray-800 rounded-lg p-0" data-prop-name="${prop}">
-                        <label for="${propId}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">${prop}</label>
+                    <div class="property-card bg-slate-800 rounded-lg p-0" data-prop-name="${prop}">
+                        <label for="${propId}" class="block text-sm font-medium text-slate-300 mb-1">${prop}</label>
                         <div class="relative">
-                            <input type="text" id="${propId}" class="w-full pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Drag a field here">
+                            <input type="text" id="${propId}" class="w-full pl-3 pr-10 py-2 border border-slate-600 bg-slate-700 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Drag a field here">
                              <button class="paste-button absolute inset-y-0 right-0 flex items-center pr-3" title="Paste from clipboard">
-                                <svg class="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                                <svg class="h-5 w-5 text-slate-400 hover:text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                             </button>
                         </div>
                     </div>
@@ -178,10 +139,10 @@
                 suggestionGrid.innerHTML = properties.map(prop => {
                     const propId = getPropId(prop);
                     return `
-                     <div class="property-card bg-white dark:bg-gray-800 rounded-lg p-0">
-                        <label for="suggestion-${propId}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">${prop}</label>
-                        <input type="text" id="suggestion-${propId}" readonly class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm sm:text-sm" placeholder="No suggestion">
-                        <button class="take-manual-value-btn text-xs bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium py-1 px-2 rounded-md transition-colors mt-2 w-full" data-prop-name="${prop}">
+                     <div class="property-card bg-slate-800 rounded-lg p-0 cursor-pointer" title="Click to copy value">
+                        <label for="suggestion-${propId}" class="block text-sm font-medium text-slate-300 mb-1 pointer-events-none">${prop}</label>
+                        <input type="text" id="suggestion-${propId}" readonly class="w-full px-3 py-2 border border-slate-600 bg-slate-700 rounded-md shadow-sm sm:text-sm pointer-events-none" placeholder="No suggestion">
+                        <button class="take-manual-value-btn text-xs bg-slate-600 hover:bg-slate-500 text-slate-200 font-medium py-1 px-2 rounded-md transition-colors mt-2 w-full" data-prop-name="${prop}">
                             Use Manually Mapped Value
                         </button>
                     </div>
@@ -196,7 +157,22 @@
                        if(manualInput && suggestionInput) {
                            suggestionInput.value = manualInput.value;
                        }
-                   }) 
+                   }); 
+                });
+
+                // Add click-to-copy for suggestion cards
+                suggestionGrid.querySelectorAll('.property-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        // Ensure the click is not on the button
+                        if (e.target.tagName.toLowerCase() === 'button') return;
+                        
+                        const input = card.querySelector('input');
+                        if (input && input.value) {
+                            navigator.clipboard.writeText(input.value)
+                                .then(showToast)
+                                .catch(err => console.error('Could not copy text: ', err));
+                        }
+                    });
                 });
             }
 
@@ -206,7 +182,7 @@
 
             function addPropertyEventListeners() {
                 // Paste buttons
-                document.querySelectorAll('.paste-button').forEach(button => {
+                propertyGrid.querySelectorAll('.paste-button').forEach(button => {
                     button.addEventListener('click', async () => {
                         const input = button.previousElementSibling;
                         try {
@@ -220,8 +196,7 @@
                 });
 
                 // Drag and drop
-                document.querySelectorAll('.property-card').forEach(card => {
-                    const input = card.querySelector('input');
+                propertyGrid.querySelectorAll('.property-card').forEach(card => {
                     card.addEventListener('dragover', e => {
                         e.preventDefault();
                         card.classList.add('drag-over');
@@ -233,7 +208,10 @@
                         e.preventDefault();
                         card.classList.remove('drag-over');
                         const data = e.dataTransfer.getData('text/plain');
-                        input.value = data;
+                        const input = card.querySelector('input');
+                        if (input) {
+                            input.value = data;
+                        }
                     });
                 });
             }
@@ -263,6 +241,7 @@
                         
                         displayParsedData(fields);
                         generateSuggestions(fields);
+                        mappingContent.classList.remove('hidden');
 
                     } catch (error) {
                         alert(`Error parsing file: ${error.message}`);
@@ -277,8 +256,7 @@
             function resetApp() {
                 fileUpload.value = '';
                 fileNameDisplay.textContent = 'No file selected';
-                parsedDataContainer.classList.add('hidden');
-                suggestionPanel.classList.add('hidden');
+                mappingContent.classList.add('hidden');
                 parsedDataDiv.innerHTML = '';
                 propertyGrid.querySelectorAll('input').forEach(input => input.value = '');
                 suggestionGrid.querySelectorAll('input').forEach(input => input.value = '');
@@ -309,21 +287,33 @@
             }
 
             function displayParsedData(fields) {
-                parsedDataDiv.innerHTML = fields.length === 0
-                    ? `<p class="text-sm text-gray-500">No fields could be extracted.</p>`
-                    : fields.map(field => {
+                // Clear previous fields
+                parsedDataDiv.innerHTML = '';
+
+                if (fields.length === 0) {
+                    parsedDataDiv.innerHTML = `<p class="text-sm text-slate-500">No fields could be extracted.</p>`;
+                } else {
+                    fields.forEach(field => {
                         const fieldElement = document.createElement('div');
-                        fieldElement.className = 'p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md text-sm font-mono cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900 hover:border-indigo-300 dark:hover:border-indigo-700';
+                        fieldElement.className = 'p-2 bg-slate-800 border border-slate-700 rounded-md text-sm font-mono cursor-pointer hover:bg-indigo-900/50 hover:border-indigo-700';
                         fieldElement.textContent = field;
                         fieldElement.draggable = true;
+                        
+                        // Add click-to-copy listener
                         fieldElement.addEventListener('click', () => {
-                            navigator.clipboard.writeText(field).then(showToast);
+                            navigator.clipboard.writeText(field)
+                                .then(showToast)
+                                .catch(err => console.error('Failed to copy text: ', err));
                         });
+
+                        // Add drag start listener
                         fieldElement.addEventListener('dragstart', e => {
                             e.dataTransfer.setData('text/plain', field);
                         });
-                        return fieldElement.outerHTML;
-                    }).join('');
+
+                        parsedDataDiv.appendChild(fieldElement);
+                    });
+                }
                 parsedDataContainer.classList.remove('hidden');
             }
             
@@ -384,7 +374,9 @@
             
             function showToast() {
                 toast.classList.remove('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
                 setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
                     toast.classList.add('translate-y-20', 'opacity-0');
                 }, 2000);
             }
@@ -396,4 +388,3 @@
     </script>
 </body>
 </html>
-

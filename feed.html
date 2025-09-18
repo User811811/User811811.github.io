@@ -21,46 +21,46 @@
         }
         .property-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
         }
         .drag-over {
-            border-color: #6366f1; /* indigo-500 */
-            background-color: #374151; /* gray-700 */
+            border-color: #0d9488; /* teal-600 */
+            background-color: #f0fdfa; /* teal-50 */
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200">
+<body class="bg-gray-50 text-gray-800">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-white">Catalog Data Mapper</h1>
-            <p class="text-md text-slate-400 mt-2">Upload your data file to map fields to catalog properties.</p>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Catalog Data Mapper</h1>
+            <p class="text-md text-gray-600 mt-2">Upload your data file to map fields to catalog properties.</p>
         </header>
 
         <main class="space-y-8">
             <!-- Panel 1: Upload File -->
-            <div class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
-                <h2 class="text-xl font-semibold mb-4 text-white">1. Upload Your File</h2>
-                <p class="text-sm text-slate-400 mb-4">Supports XML, CSV, TXT (tab-separated), and PSV (pipe-separated) files.</p>
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                <h2 class="text-xl font-semibold mb-4 text-gray-900">1. Upload Your File</h2>
+                <p class="text-sm text-gray-600 mb-4">Supports XML, CSV, TXT (tab-separated), and PSV (pipe-separated) files.</p>
                 <div class="flex items-center space-x-4">
-                    <label for="file-upload" class="action-button cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700">
+                    <label for="file-upload" class="action-button cursor-pointer bg-teal-600 text-white px-4 py-2 rounded-md font-medium hover:bg-teal-700">
                         Choose File
                     </label>
                     <input id="file-upload" type="file" class="hidden" accept=".xml,.csv,.txt,.psv">
-                    <span id="file-name" class="text-sm text-slate-400 truncate">No file selected</span>
+                    <span id="file-name" class="text-sm text-gray-500 truncate">No file selected</span>
                 </div>
             </div>
 
             <!-- Wrapper for panels 2, 3, and 4. Hidden by default. -->
             <div id="mapping-content" class="hidden space-y-8">
                 <!-- Panel 2: Available Fields -->
-                <div id="parsed-data-container" class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
+                <div id="parsed-data-container" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                      <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-white">2. Available Fields</h2>
-                        <button id="clear-button" class="text-sm bg-slate-600 hover:bg-slate-500 text-slate-200 font-medium py-1 px-3 rounded-md transition-colors">Clear</button>
+                        <h2 class="text-xl font-semibold text-gray-900">2. Available Fields</h2>
+                        <button id="clear-button" class="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">Clear</button>
                     </div>
-                    <p class="text-sm text-slate-400 mb-4">Click to copy, or drag & drop a field onto a property below.</p>
-                    <div id="parsed-data" class="max-h-96 overflow-y-auto bg-slate-900 p-3 rounded-md space-y-2">
+                    <p class="text-sm text-gray-600 mb-4">Click to copy, or drag & drop a field onto a property on the right.</p>
+                    <div id="parsed-data" class="max-h-96 overflow-y-auto bg-gray-50 p-3 rounded-md space-y-2">
                         <!-- Parsed data will be injected here -->
                     </div>
                 </div>
@@ -68,17 +68,17 @@
                 <!-- Grid Wrapper for panels 3 and 4 -->
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                     <!-- Panel 3: Manual Mapping -->
-                    <div class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
-                        <h2 class="text-xl font-semibold mb-4 text-white">3. Map Properties (Manual)</h2>
-                         <p class="text-sm text-slate-400 mb-6">Enter the column name or XPath for each catalog property.</p>
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-900">3. Map Properties (Manual)</h2>
+                         <p class="text-sm text-gray-600 mb-6">Enter the column name or XPath for each catalog property.</p>
                         <div id="property-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Property fields will be injected here -->
                         </div>
                     </div>
                     <!-- Panel 4: Suggestions -->
-                    <div id="suggestions-panel" class="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700">
-                        <h2 class="text-xl font-semibold mb-4 text-white">4. Final Output (with Suggestions)</h2>
-                         <p class="text-sm text-slate-400 mb-6">Automated suggestions are filled below. Correct them or use the button to pull your manually mapped value.</p>
+                    <div id="suggestions-panel" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-900">4. Final Output (with Suggestions)</h2>
+                         <p class="text-sm text-gray-600 mb-6">Automated suggestions are filled below. Correct them or use the button to pull your manually mapped value.</p>
                         <div id="suggestion-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Suggestion fields will be injected here -->
                         </div>
@@ -122,12 +122,12 @@
                 propertyGrid.innerHTML = properties.map(prop => {
                     const propId = getPropId(prop);
                     return `
-                    <div class="property-card bg-slate-800 rounded-lg p-0" data-prop-name="${prop}">
-                        <label for="${propId}" class="block text-sm font-medium text-slate-300 mb-1">${prop}</label>
+                    <div class="property-card bg-white rounded-lg p-0" data-prop-name="${prop}">
+                        <label for="${propId}" class="block text-sm font-medium text-gray-700 mb-1">${prop}</label>
                         <div class="relative">
-                            <input type="text" id="${propId}" class="w-full pl-3 pr-10 py-2 border border-slate-600 bg-slate-700 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Drag a field here">
+                            <input type="text" id="${propId}" class="w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm" placeholder="Drag a field here">
                              <button class="paste-button absolute inset-y-0 right-0 flex items-center pr-3" title="Paste from clipboard">
-                                <svg class="h-5 w-5 text-slate-400 hover:text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                                <svg class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                             </button>
                         </div>
                     </div>
@@ -139,10 +139,10 @@
                 suggestionGrid.innerHTML = properties.map(prop => {
                     const propId = getPropId(prop);
                     return `
-                     <div class="property-card bg-slate-800 rounded-lg p-0 cursor-pointer" title="Click to copy value">
-                        <label for="suggestion-${propId}" class="block text-sm font-medium text-slate-300 mb-1 pointer-events-none">${prop}</label>
-                        <input type="text" id="suggestion-${propId}" readonly class="w-full px-3 py-2 border border-slate-600 bg-slate-700 rounded-md shadow-sm sm:text-sm pointer-events-none" placeholder="No suggestion">
-                        <button class="take-manual-value-btn text-xs bg-slate-600 hover:bg-slate-500 text-slate-200 font-medium py-1 px-2 rounded-md transition-colors mt-2 w-full" data-prop-name="${prop}">
+                     <div class="property-card bg-white rounded-lg p-0 cursor-pointer" title="Click to copy value">
+                        <label for="suggestion-${propId}" class="block text-sm font-medium text-gray-700 mb-1 pointer-events-none">${prop}</label>
+                        <input type="text" id="suggestion-${propId}" readonly class="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm sm:text-sm pointer-events-none" placeholder="No suggestion">
+                        <button class="take-manual-value-btn text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-2 rounded-md transition-colors mt-2 w-full" data-prop-name="${prop}">
                             Use Manually Mapped Value
                         </button>
                     </div>
@@ -291,11 +291,11 @@
                 parsedDataDiv.innerHTML = '';
 
                 if (fields.length === 0) {
-                    parsedDataDiv.innerHTML = `<p class="text-sm text-slate-500">No fields could be extracted.</p>`;
+                    parsedDataDiv.innerHTML = `<p class="text-sm text-gray-500">No fields could be extracted.</p>`;
                 } else {
                     fields.forEach(field => {
                         const fieldElement = document.createElement('div');
-                        fieldElement.className = 'p-2 bg-slate-800 border border-slate-700 rounded-md text-sm font-mono cursor-pointer hover:bg-indigo-900/50 hover:border-indigo-700';
+                        fieldElement.className = 'p-2 bg-white border border-gray-200 rounded-md text-sm font-mono cursor-pointer hover:bg-teal-50 hover:border-teal-300';
                         fieldElement.textContent = field;
                         fieldElement.draggable = true;
                         

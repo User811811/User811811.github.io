@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Integration Checklist</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF and html2canvas for PDF export functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Custom styles for better UI/UX */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .spinner {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* Style for printing to PDF */
+        @media print {
+            body, html {
+                background-color: #fff;
+            }
+            #controls, #export-button-container {
+                display: none;
+            }
+            #checklist-container {
+                box-shadow: none;
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-gray-800">Integration Checklist</h1>
+            <p class="text-gray-600 mt-2">Filter and Export a tailored checklist for client integrations.</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Setup and Filtering Controls -->
+            <div id="controls" class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg h-fit">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-3">Setup</h2>
+                
+                <!-- Client Details -->
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label for="clientName" class="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
+                        <input type="text" id="clientName" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="accountId" class="block text-sm font-medium text-gray-700 mb-1">Account ID</label>
+                        <input type="number" id="accountId" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="campaignId" class="block text-sm font-medium text-gray-700 mb-1">Campaign ID</label>
+                        <input type="number" id="campaignId" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <!-- Filtering Checkboxes -->
+                <div id="filter-form" class="space-y-6">
+                    <!-- Integration Type -->
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Integration Type</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center"><input type="checkbox" id="utt" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="utt" class="ml-2 text-sm">Universal Tracking Tag</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="capi" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="capi" class="ml-2 text-sm">Conversions API</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="pla" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="pla" class="ml-2 text-sm">Page Load API</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="ftp" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="ftp" class="ml-2 text-sm">FTP / Email</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Conversion Type -->
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Conversion Type</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center"><input type="checkbox" id="sale" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="sale" class="ml-2 text-sm">Sale</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="app" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="app" class="ml-2 text-sm">App</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="chaining" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="chaining" class="ml-2 text-sm">Chaining</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="consent" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="consent" class="ml-2 text-sm">Consent Mode</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="shared" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="shared" class="ml-2 text-sm">Shared Events</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Datapoints -->
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Additional Datapoints</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center"><input type="checkbox" id="customerId" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="customerId" class="ml-2 text-sm">Customer ID</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="customerEmail" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="customerEmail" class="ml-2 text-sm">Customer Email</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="customerStatus" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="customerStatus" class="ml-2 text-sm">Customer Status</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="orderDiscount" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="orderDiscount" class="ml-2 text-sm">Order Discount</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="promoCode" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="promoCode" class="ml-2 text-sm">Promo Code</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="currencyCode" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="currencyCode" class="ml-2 text-sm">Currency Code</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="custom" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><label for="custom" class="ml-2 text-sm">Custom Text/Numeric/Money/Date</label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Checklist Display -->
+            <div class="lg:col-span-2">
+                <div id="checklist-container" class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-3">Checklist</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">Task</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checklist-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Checklist items will be dynamically inserted here -->
+                                <tr>
+                                    <td colspan="3" class="px-6 py-10 text-center text-gray-500">Select criteria from "Setup" to generate the checklist.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="export-button-container" class="mt-6 flex justify-end">
+                    <button id="export-pdf" class="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg id="export-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        <div id="spinner" class="spinner h-5 w-5 mr-2 rounded-full border-2 border-t-2 border-white hidden"></div>
+                        <span id="export-text">Export to PDF</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- DATA ---
+            const checklistData = [
+                { category: 'General & Gateway Settings', task: '"Site Definition" matches production domain', integrations: [], datapoints: [] },
+                { category: 'General & Gateway Settings', task: '"Site Definition" does not have staging domains present', integrations: [], datapoints: [] },
+                { category: 'General & Gateway Settings', task: '"Default Landing Page" matches production landing page.', integrations: [], datapoints: [] },
+                { category: 'General & Gateway Settings', task: '"Program Tracking Template" contains "im_ref={clickid}"', integrations: [], datapoints: [] },
+                { category: 'General & Gateway Settings', task: '"Deep Linking" URLs are accurate.', integrations: [], datapoints: [] },
+                
+                
+                { category: 'Universal Tracking Tag Review', task: 'Click ID saved to "IR_{CampaignID}" cookie', integrations: ['UTT'], datapoints: [] },
+                { category: 'Universal Tracking Tag Review', task: 'Landing Page URL persists querystring until cookie policy is accepted', integrations: ['UTT'], datapoints: [] },
+                { category: 'Universal Tracking Tag Review', task: 'Click ID passed between domains when site transition occurs', integrations: ['UTT'], datapoints: [] },
+                { category: 'Universal Tracking Tag Review', task: 'UTT loads under 3 seconds', integrations: ['UTT'], datapoints: [] },
+                { category: 'Universal Tracking Tag Review', task: 'Identify function invoked for anonymous users', integrations: ['UTT'], datapoints: [] },
+                { category: 'Universal Tracking Tag Review', task: 'Identify function invoked for logged-in users', integrations: ['UTT'], datapoints: [] },
+                
+                
+                { category: 'Conversion Payload Review', task: 'Logs contain no errors in relation to test events', integrations: [], datapoints: [] },
+                { category: 'Conversion Payload Review', task: 'Referring URLs are accurate', integrations: [], datapoints: [] },       
+                { category: 'Conversion Payload Review', task: 'SKU is accurate', integrations: [], datapoints: ['Sale'] },
+                { category: 'Conversion Payload Review', task: 'Varying Quantities are present', integrations: [], datapoints: ['Sale'] },
+                { category: 'Conversion Payload Review', task: 'Subtotal excludes Taxes, Shipping and Discounts', integrations: [], datapoints: ['Sale'] },
+                { category: 'Conversion Payload Review', task: 'Subtotal rounded to 2 decimal places', integrations: [], datapoints: ['Sale'] },
+                { category: 'Conversion Payload Review', task: 'OrderDiscount rounded to 2 decimal places', integrations: [], datapoints: ['Discount'] },
+                { category: 'Conversion Payload Review', task: 'Promo Codes passed correctly', integrations: [], datapoints: ['Promo'] },
+                { category: 'Conversion Payload Review', task: 'Currency Code passed correctly', integrations: [], datapoints: ['Currency'] },
+                { category: 'Conversion Payload Review', task: 'Customer Status passed correctly', integrations: [], datapoints: ['Status'] },
+                                
+                
+                { category: 'End to End Tests', task: 'Production Tests include different SKUs', integrations: [], datapoints: ['Sale'] },
+                { category: 'End to End Tests', task: 'Production Tests include varying Quantities', integrations: [], datapoints: ['Sale'] },
+                { category: 'End to End Tests', task: 'Production Tests include a Promo Code', integrations: [], datapoints: ['Promo'] },
+                { category: 'End to End Tests', task: 'Production Tests include Discounted Items', integrations: [], datapoints: ['Discount'] },
+                { category: 'End to End Tests', task: 'Discounts are not duplicated', integrations: [], datapoints: ['Discount'] },
+                { category: 'End to End Tests', task: 'Emails are SHA1 Hashed', integrations: [], datapoints: ['Email'] },
+                { category: 'End to End Tests', task: 'Revenue & Payout verified by client', integrations: [], datapoints: ['Sale'] },
+                { category: 'End to End Tests', task: 'Events have attributed to the correct Partner', integrations: [], datapoints: [] },
+                { category: 'End to End Tests', task: 'Chained events are correctly chained (Referral Type: Action)', integrations: [], datapoints: ['Chained'] },
+                { category: 'End to End Tests', task: '<a href="https://impact.atlassian.net/wiki/spaces/IE/pages/4813029543/How+to+validate+a+Consent+Mode+integration">Consent Mode Integration reviewed.</a>', integrations: [], datapoints: ['Consent'] },
+
+               
+                
+                { category: 'Modifications / Reversals', task: 'What method of reversals will the client be using?', integrations: [], datapoints: [] },
+                { category: 'Modifications / Reversals', task: 'Order level reversals have been tested', integrations: [], datapoints: [] },
+                { category: 'Modifications / Reversals', task: 'Item returns have been tested', integrations: [], datapoints: [] },
+                
+                
+                { category: 'Operator & Checklist Cleanup', task: 'Complete "Impact Tech Review" step', integrations: [], datapoints: [] },
+                { category: 'Operator & Checklist Cleanup', task: 'Any nuances added to Implementation Notes', integrations: [], datapoints: [] },
+                { category: 'Operator & Checklist Cleanup', task: '"Has Mobile App"" is ticked', integrations: [], datapoints: ['App'] },
+                { category: 'Operator & Checklist Cleanup', task: '"Integration Types" have been added', integrations: [], datapoints: [] },
+
+
+            ];
+            
+            // Map checkbox labels to data values for easy lookup
+            const filterMap = {
+                'Universal Tracking Tag': 'UTT',
+                'Conversions API': 'API',
+                'Page Load API': 'PLA',
+                'FTP / Email': 'FTP',
+                
+                'Sale': 'Sale',
+                'App': 'App',
+                'Chaining': 'Chained',
+                'Consent Mode': 'Consent',
+                'Shared Events': 'Shared',
+                
+                'Customer ID': 'ID',
+                'Customer Email': 'Email',
+                'Customer Status': 'Status',
+                'Order Discount': 'Discount',
+                'Promo Code': 'Promo',
+                'Currency Code': 'Currency',
+                'Custom Text/Numeric/Money/Date': 'Custom',
+            };
+
+            // --- DOM ELEMENTS ---
+            const filterForm = document.getElementById('filter-form');
+            const checklistBody = document.getElementById('checklist-body');
+            const chainingCheckbox = document.getElementById('chaining');
+            const customerIdCheckbox = document.getElementById('customerId');
+            const exportPdfButton = document.getElementById('export-pdf');
+
+            // --- FUNCTIONS ---
+            
+            /**
+             * Renders the checklist table based on the provided items.
+             * @param {Array} items - The filtered list of checklist items to display.
+             */
+            function renderChecklist(items) {
+                checklistBody.innerHTML = ''; // Clear existing rows
+                if (items.length === 0) {
+                    checklistBody.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-gray-500">No checklist items match the selected criteria.</td></tr>';
+                    return;
+                }
+
+                let currentCategory = '';
+                items.forEach(item => {
+                    // Add a category header row if the category is new
+                    if (item.category !== currentCategory) {
+                        currentCategory = item.category;
+                        const categoryRow = document.createElement('tr');
+                        categoryRow.innerHTML = `<td colspan="3" class="px-6 py-3 bg-gray-200 text-gray-800 font-bold">${currentCategory}</td>`;
+                        checklistBody.appendChild(categoryRow);
+                    }
+
+                    // Add the task row
+                    const taskRow = document.createElement('tr');
+                    taskRow.classList.add('hover:bg-gray-50');
+                    taskRow.innerHTML = `
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-900">${item.task}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <select class="status-select w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <option>Needs Review</option>
+                                <option>Yes</option>
+                                <option>No</option>
+                                <option>Not Used</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="text" class="notes-input w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="Add notes...">
+                        </td>
+                    `;
+                    checklistBody.appendChild(taskRow);
+                });
+            }
+            
+            /**
+             * Filters the main checklist data based on selected criteria and triggers a re-render.
+             */
+            function filterAndRender() {
+                const selectedFilters = new Set();
+                const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]:checked');
+                
+                checkboxes.forEach(cb => {
+                    const label = cb.nextElementSibling.textContent;
+                    if (filterMap[label]) {
+                        selectedFilters.add(filterMap[label]);
+                    }
+                });
+
+                if (selectedFilters.size === 0) {
+                    checklistBody.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-gray-500">Select criteria from "Setup Specifics" to generate the checklist.</td></tr>';
+                    return;
+                }
+
+                const filteredData = checklistData.filter(item => {
+                    // Always include items with no specific requirements (general items)
+                    if (item.integrations.length === 0 && item.datapoints.length === 0) {
+                        return true;
+                    }
+                    
+                    // An item's integration requirements are met if it has none, or if one of them is selected.
+                    const integrationMatch = item.integrations.length === 0 || item.integrations.some(req => selectedFilters.has(req));
+                    
+                    // An item's datapoint requirements are met if it has none, or if one of them is selected.
+                    const datapointMatch = item.datapoints.length === 0 || item.datapoints.some(req => selectedFilters.has(req));
+
+                    // Both sets of requirements must be met for the item to be shown.
+                    return integrationMatch && datapointMatch;
+                });
+                
+                renderChecklist(filteredData);
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Listen for changes on any checkbox to re-filter
+            filterForm.addEventListener('change', filterAndRender);
+            
+            // Automation logic: if "Chaining" is selected, "Customer ID" must also be selected.
+            chainingCheckbox.addEventListener('change', () => {
+                if (chainingCheckbox.checked) {
+                    customerIdCheckbox.checked = true;
+                    // Since we programmatically changed a checkbox, we need to trigger the filter again
+                    filterAndRender();
+                }
+            });
+            
+            // PDF Export logic
+            exportPdfButton.addEventListener('click', async () => {
+                const clientName = document.getElementById('clientName').value || 'N/A';
+                const accountId = document.getElementById('accountId').value || 'N/A';
+                const campaignId = document.getElementById('campaignId').value || 'N/A';
+                const checklistContainer = document.getElementById('checklist-container');
+                const { jsPDF } = window.jspdf;
+
+                // Disable button and show spinner
+                exportPdfButton.disabled = true;
+                document.getElementById('export-icon').classList.add('hidden');
+                document.getElementById('spinner').classList.remove('hidden');
+                document.getElementById('export-text').textContent = 'Generating...';
+                
+                try {
+                    const canvas = await html2canvas(checklistContainer, { scale: 2 });
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    const pdf = new jsPDF({
+                        orientation: 'p',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const margin = 15;
+
+                    // Add header information
+                    pdf.setFontSize(22).setFont('helvetica', 'bold');
+                    pdf.text('Integration Checklist Report', margin, margin + 5);
+                    pdf.setFontSize(12).setFont('helvetica', 'normal');
+                    pdf.text(`Client: ${clientName}`, margin, margin + 15);
+                    pdf.text(`Account ID: ${accountId}`, margin, margin + 20);
+                    pdf.text(`Campaign ID: ${campaignId}`, margin, margin + 25);
+                    
+                    // Add checklist image
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const imgHeight = (imgProps.height * (pdfWidth - margin * 2)) / imgProps.width;
+                    let position = margin + 35;
+
+                    if (position + imgHeight > pdfHeight - margin) {
+                        alert('Checklist is too long to fit on one page. Please consider reducing notes or filtering further.');
+                        return; // Or implement multi-page logic
+                    }
+                    
+                    pdf.addImage(imgData, 'PNG', margin, position, pdfWidth - margin * 2, imgHeight);
+
+                    pdf.save(`${clientName.replace(/\s+/g, '_')}_Integration_Checklist.pdf`);
+
+                } catch (error) {
+                    console.error("Failed to generate PDF:", error);
+                    alert("An error occurred while generating the PDF. Please check the console for details.");
+                } finally {
+                    // Re-enable button and hide spinner
+                    exportPdfButton.disabled = false;
+                    document.getElementById('spinner').classList.add('hidden');
+                    document.getElementById('export-icon').classList.remove('hidden');
+                    document.getElementById('export-text').textContent = 'Export to PDF';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

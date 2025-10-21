@@ -339,7 +339,7 @@
                 document.getElementById('export-text').textContent = 'Generating...';
                 
                 try {
-                    const canvas = await html2canvas(checklistContainer, { scale: 2 });
+                    const canvas = await html2canvas(checklistContainer, { scale: 2, windowWidth: checklistContainer.scrollWidth, windowHeight: checklistContainer.scrollHeight });
                     const imgData = canvas.toDataURL('image/png');
                     
                     const pdf = new jsPDF({
@@ -351,8 +351,9 @@
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
                     const margin = 15;
+                    const contentWidth = pdfWidth - margin * 2;
 
-                    // Add header information
+                    // Add header information to the first page
                     pdf.setFontSize(22).setFont('helvetica', 'bold');
                     pdf.text('Integration Checklist Report', margin, margin + 5);
                     pdf.setFontSize(12).setFont('helvetica', 'normal');
@@ -360,17 +361,21 @@
                     pdf.text(`Account ID: ${accountId}`, margin, margin + 20);
                     pdf.text(`Campaign ID: ${campaignId}`, margin, margin + 25);
                     
-                    // Add checklist image
+                    // Add checklist image, handling multiple pages if necessary
                     const imgProps = pdf.getImageProperties(imgData);
-                    const imgHeight = (imgProps.height * (pdfWidth - margin * 2)) / imgProps.width;
-                    let position = margin + 35;
+                    const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
+                    let heightLeft = imgHeight;
+                    let position = margin + 35; // Initial position after header
 
-                    if (position + imgHeight > pdfHeight - margin) {
-                        alert('Checklist is too long to fit on one page. Please consider reducing notes or filtering further.');
-                        return; // Or implement multi-page logic
+                    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, imgHeight);
+                    heightLeft -= (pdfHeight - position - margin);
+
+                    while (heightLeft > 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', margin, position, contentWidth, imgHeight);
+                        heightLeft -= pdfHeight;
                     }
-                    
-                    pdf.addImage(imgData, 'PNG', margin, position, pdfWidth - margin * 2, imgHeight);
 
                     pdf.save(`${clientName.replace(/\s+/g, '_')}_Integration_Checklist.pdf`);
 

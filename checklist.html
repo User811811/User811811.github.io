@@ -375,11 +375,11 @@
                     
                     const details = document.createElement('p');
                     details.className = 'text-xs text-gray-400 truncate'; 
-                    details.textContent = `Acct: ${checklist.accountId || 'N/A'} - Camp: ${checklist.campaignId || 'N/A'}`;
+                    details.textContent = `Account ID: ${checklist.accountId || 'N/A'} - Campaign ID: ${checklist.campaignId || 'N/A'}`;
 
                     const details2 = document.createElement('p');
                     details2.className = 'text-xs text-gray-500 truncate'; 
-                    details2.textContent = `Saved: ${new Date(checklist.timestamp).toLocaleString()}`
+                    details2.textContent = `Last Date Saved: ${new Date(checklist.timestamp).toLocaleString()}`
 
                     textContainer.appendChild(client);
                     textContainer.appendChild(details);

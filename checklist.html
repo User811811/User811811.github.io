@@ -22,6 +22,84 @@
                 transform: rotate(360deg);
             }
         }
+        /* NEW: Styles for the filter pill buttons */
+        .filter-pill-container {
+            margin-bottom: 8px;
+        }
+        .filter-pill-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px 5px 8px; /* Tighter on the left for the dot */
+            border-radius: 9999px; /* pill */
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: #374151; /* gray-700 */
+            color: #d1d5db; /* gray-300 */
+            border: 1px solid #4b5563; /* gray-600 */
+            transition: all 0.2s ease;
+            width: 100%; /* Make pills full width of their column */
+        }
+        .filter-pill-button:hover {
+            background-color: #4b5563; /* gray-600 */
+        }
+        .filter-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #9ca3af; /* gray-400 */
+            margin-right: 10px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .filter-text {
+            white-space: normal;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .filter-pill-button.checked {
+            background-color: #0d9488; /* teal-600 */
+            border-color: #0f766e; /* teal-700 */
+            color: #ffffff;
+        }
+        .filter-pill-button.checked .filter-dot {
+            background-color: #5eead4; /* teal-300 */
+        }
+
+        /* NEW: Styles for the pill-shaped status button */
+        .status-pill-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px 4px 6px; /* Tighter on the left for the dot */
+            border-radius: 9999px; /* pill */
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #374151; /* gray-700 */
+            color: #d1d5db; /* gray-300 */
+            border: 1px solid #4b5563; /* gray-600 */
+            transition: all 0.2s ease;
+        }
+        .status-pill-button:hover {
+            background-color: #4b5563; /* gray-600 */
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #9ca3af; /* gray-400 */
+            margin-right: 8px;
+            transition: all 0.2s ease;
+        }
+        .status-pill-button.checked {
+            background-color: #047857; /* green-700 */
+            border-color: #059669; /* green-600 */
+            color: #ffffff;
+        }
+        .status-pill-button.checked .status-dot {
+            background-color: #34d399; /* green-400 */
+        }
+
         /* Style for printing to PDF */
         /* This .no-print class is for browser's native print, but we also use it for JS-based PDF export */
         @media print {
@@ -65,16 +143,18 @@
                 <h2 class="text-2xl font-semibold mb-6 border-b border-gray-600 pb-3 text-white">Setup Your Checklist</h2>
                 
                 <div class="space-y-4 mb-6">
+                    <!-- ADDED BACK: Client Name -->
                     <div>
                         <label for="clientName" class="block text-sm font-medium text-gray-300 mb-1">Client Name</label>
                         <input type="text" id="clientName" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">
                     </div>
+                    <!-- ADDED BACK: Account ID -->
                     <div>
                         <label for="accountId" class="block text-sm font-medium text-gray-300 mb-1">Account ID</label>
                         <input type="number" id="accountId" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">
                     </div>
                     <div>
-                        <label for="campaignId" class="block text-sm font-medium text-gray-300 mb-1">Campaign ID</label>
+                        <label for="campaignId" class="block text-sm font-medium text-gray-300 mb-1">Campaign ID <span class="text-red-500">*</span></label>
                         <input type="number" id="campaignId" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">
                     </div>
                 </div>
@@ -84,35 +164,138 @@
                     <div>
                         <h3 class="font-semibold text-gray-200 mb-2">Integration Type(s):</h3>
                         <div id="filter-integration-type" class="space-y-2">
-                            <div class="flex items-center"><input type="checkbox" id="utt" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="utt" class="ml-2 text-sm">Universal Tracking Tag</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="capi" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="capi" class="ml-2 text-sm">Conversions API</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="pla" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="pla" class="ml-2 text-sm">Page Load API</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="ftp" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="ftp" class="ml-2 text-sm">FTP / Email</label></div>
+                            <!-- UPDATED HTML STRUCTURE -->
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="utt" class="hidden filter-checkbox" data-label="Universal Tracking Tag">
+                                <button class="filter-pill-button" data-target="utt">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Universal Tracking Tag</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="capi" class="hidden filter-checkbox" data-label="Conversions API">
+                                <button class="filter-pill-button" data-target="capi">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Conversions API</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="pla" class="hidden filter-checkbox" data-label="Page Load API">
+                                <button class="filter-pill-button" data-target="pla">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Page Load API</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="ftp" class="hidden filter-checkbox" data-label="FTP / Email">
+                                <button class="filter-pill-button" data-target="ftp">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">FTP / Email</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <div>
                         <h3 class="font-semibold text-gray-200 mb-2">Conversion Type(s):</h3>
                         <div id="filter-conversion-type" class="space-y-2">
-                            <div class="flex items-center"><input type="checkbox" id="sale" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="sale" class="ml-2 text-sm">Sale</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="app" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="app" class="ml-2 text-sm">App</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="chaining" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="chaining" class="ml-2 text-sm">Chaining</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="consent" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="consent" class="ml-2 text-sm">Consent Mode</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="crossdomain" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="crossDomain" class="ml-2 text-sm">Cross Domain Tracking</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="shared" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="shared" class="ml-2 text-sm">Shared Events (Needs suggestions)</label></div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="sale" class="hidden filter-checkbox" data-label="Sale">
+                                <button class="filter-pill-button" data-target="sale">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Sale</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="app" class="hidden filter-checkbox" data-label="App">
+                                <button class="filter-pill-button" data-target="app">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">App</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="chaining" class="hidden filter-checkbox" data-label="Chaining">
+                                <button class="filter-pill-button" data-target="chaining">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Chaining</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="consent" class="hidden filter-checkbox" data-label="Consent Mode">
+                                <button class="filter-pill-button" data-target="consent">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Consent Mode</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="crossdomain" class="hidden filter-checkbox" data-label="Cross Domain Tracking">
+                                <button class="filter-pill-button" data-target="crossdomain">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Cross Domain Tracking</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="shared" class="hidden filter-checkbox" data-label="Shared Events (Needs suggestions)">
+                                <button class="filter-pill-button" data-target="shared">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Shared Events (Needs suggestions)</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <div>
                         <h3 class="font-semibold text-gray-200 mb-2">Additional Datapoint(s):</h3>
                         <div id="filter-datapoints" class="space-y-2">
-                            <div class="flex items-center"><input type="checkbox" id="customerId" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="customerId" class="ml-2 text-sm">Customer ID</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="customerEmail" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="customerEmail" class="ml-2 text-sm">Customer Email</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="customerStatus" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="customerStatus" class="ml-2 text-sm">Customer Status</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="orderDiscount" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="orderDiscount" class="ml-2 text-sm">Order Discount</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="promoCode" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="promoCode" class="ml-2 text-sm">Promo Code</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="currencyCode" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="currencyCode" class="ml-2 text-sm">Currency Code</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="custom" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="custom" class="ml-2 text-sm">Custom Text/Numeric/Money/Date (Needs suggestions)</label></div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="customerId" class="hidden filter-checkbox" data-label="Customer ID">
+                                <button class="filter-pill-button" data-target="customerId">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Customer ID</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="customerEmail" class="hidden filter-checkbox" data-label="Customer Email">
+                                <button class="filter-pill-button" data-target="customerEmail">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Customer Email</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="customerStatus" class="hidden filter-checkbox" data-label="Customer Status">
+                                <button class="filter-pill-button" data-target="customerStatus">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Customer Status</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="orderDiscount" class="hidden filter-checkbox" data-label="Order Discount">
+                                <button class="filter-pill-button" data-target="orderDiscount">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Order Discount</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="promoCode" class="hidden filter-checkbox" data-label="Promo Code">
+                                <button class="filter-pill-button" data-target="promoCode">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Promo Code</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="currencyCode" class="hidden filter-checkbox" data-label="Currency Code">
+                                <button class="filter-pill-button" data-target="currencyCode">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Currency Code</span>
+                                </button>
+                            </div>
+                            <div class="filter-pill-container">
+                                <input type="checkbox" id="custom" class="hidden filter-checkbox" data-label="Custom Text/Numeric/Money/Date (Needs suggestions)">
+                                <button class="filter-pill-button" data-target="custom">
+                                    <span class="filter-dot"></span>
+                                    <span class="filter-text">Custom Text/Numeric/Money/Date (Needs suggestions)</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -137,7 +320,8 @@
                             <thead class="bg-gray-700">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-teal-400 uppercase tracking-wider w-1/2">Task</th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-teal-400 uppercase tracking-wider w-1/6">Reviewed & Checked</th>
+                                    <!-- REVERTED: Status header -->
+                                    <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-teal-400 uppercase tracking-wider w-1/6">Status</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-teal-400 uppercase tracking-wider">Notes</th>
                                 </tr>
                             </thead>
@@ -151,7 +335,7 @@
                 </div>
                 
                 <div id="export-button-container" class="mt-6 flex justify-end">
-                    <button id="export-pdf" class="bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button id="export-pdf" disabled class="bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg id="export-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                         <div id="spinner" class="spinner h-5 w-5 mr-2 rounded-full border-2 border-t-2 border-white hidden"></div>
                         <span id="export-text">Export to PDF</span>
@@ -181,7 +365,7 @@
                 { category: 'Universal Tracking Tag Review', task: 'Identify function invoked for anonymous users', integrations: ['UTT'], datapoints: [] },
                 { category: 'Universal Tracking Tag Review', task: 'Identify function invoked for logged-in users', integrations: ['UTT'], datapoints: [] },
                 { category: 'Conversion Payload Review', task: 'Logs contain no errors in relation to test events', integrations: [], datapoints: [] },
-                { category: 'Conversion Payload Review', task: 'Referring URLs are accurate', integrations: [], datapoints: [] },       
+                { category: 'Conversion Payload Review', task: 'Referring URLs are accurate', integrations: [], datapoints: [] },    
                 { category: 'Conversion Payload Review', task: 'SKU is accurate', integrations: [], datapoints: ['Sale'] },
                 { category: 'Conversion Payload Review', task: 'Varying Quantities are present', integrations: [], datapoints: ['Sale'] },
                 { category: 'Conversion Payload Review', task: 'Subtotal excludes Taxes, Shipping and Discounts', integrations: [], datapoints: ['Sale'] },
@@ -241,7 +425,51 @@
             const campaignIdInput = document.getElementById('campaignId');
 
             // --- FUNCTIONS ---
+
+            /**
+             * NEW: Checks if the Campaign ID is filled and enables/disables the export button.
+             */
+            function checkExportButtonState() {
+                if (campaignIdInput.value.trim() !== '') {
+                    exportPdfButton.disabled = false;
+                } else {
+                    exportPdfButton.disabled = true;
+                }
+            }
             
+            /**
+             * NEW: Updates the visual state of a filter pill button.
+             * @param {HTMLElement} button - The pill button element.
+             * @param {boolean} isChecked - The new checked state.
+             */
+            function updateFilterPillVisuals(button, isChecked) {
+                if (!button) return;
+                if (isChecked) {
+                    button.classList.add('checked');
+                } else {
+                    button.classList.remove('checked');
+                }
+            }
+
+            /**
+             * NEW: Updates the visual state of a status pill button.
+             * @param {HTMLElement} button - The pill button element.
+             * @param {boolean} isChecked - The new checked state.
+             */
+            function updatePillButtonVisuals(button, isChecked) {
+                if (!button) return;
+                const dot = button.querySelector('.status-dot');
+                const text = button.querySelector('.status-text');
+                
+                if (isChecked) {
+                    button.classList.add('checked');
+                    if (text) text.textContent = 'Checked';
+                } else {
+                    button.classList.remove('checked');
+                    if (text) text.textContent = 'Not Checked';
+                }
+            }
+
             /**
              * Renders the checklist table based on the provided items.
              */
@@ -261,9 +489,14 @@
                             <td colspan="3" class="px-6 py-3 bg-gray-900 text-teal-300 font-bold">
                                 <div class="flex justify-between items-center">
                                     <span>${currentCategory}</span>
-                                    <button class="fast-fill-btn no-print text-xs bg-gray-600 hover:bg-gray-500 text-white py-1 px-2 rounded" data-category="${currentCategory}">
-                                        Check All
-                                    </button>
+                                    <div class="flex space-x-2">
+                                        <button class="fast-fill-btn no-print text-xs bg-gray-600 hover:bg-gray-500 text-white py-1 px-2 rounded" data-category="${currentCategory}">
+                                            Check All
+                                        </button>
+                                        <button class="uncheck-all-btn no-print text-xs bg-gray-600 hover:bg-gray-500 text-white py-1 px-2 rounded" data-category="${currentCategory}">
+                                            Uncheck All
+                                        </button>
+                                    </div>
                                 </div>
                             </td>`;
                         checklistBody.appendChild(categoryRow);
@@ -273,36 +506,73 @@
                     taskRow.classList.add('hover:bg-gray-700', 'task-row'); 
                     taskRow.dataset.category = currentCategory;
                     
-                    // UPDATED TD for checkbox and Notes input
+                    // REVERTED: Use status pill button
                     taskRow.innerHTML = `
                         <td class="px-6 py-4 whitespace-normal text-sm text-gray-100">${item.task}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-center">
-                            <input type="checkbox" class="status-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500">
+                        <td class="px-4 py-4 whitespace-nowrap text-center align-middle">
+                            <input type="checkbox" class="status-checkbox hidden">
+                            <button class="status-pill-button">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Not Checked</span>
+                            </button>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <input type="text" class="notes-input w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50 px-3 py-1" placeholder="Add notes...">
                         </td>
                     `;
                     checklistBody.appendChild(taskRow);
+
+                    // REVERTED: Add listener for the new pill button
+                    const newButton = taskRow.querySelector('.status-pill-button');
+                    const newCheckbox = taskRow.querySelector('.status-checkbox');
+                    if (newButton && newCheckbox) {
+                        newButton.addEventListener('click', () => {
+                            newCheckbox.checked = !newCheckbox.checked;
+                            updatePillButtonVisuals(newButton, newCheckbox.checked);
+                        });
+                    }
                 });
 
-                addFastFillListeners();
+                addCategoryButtonListeners();
             }
 
             /**
-             * Adds event listeners to all "Check All" buttons.
+             * Adds event listeners to all "Check All" and "Uncheck All" buttons.
              */
-            function addFastFillListeners() {
+            function addCategoryButtonListeners() {
+                // Check All logic
                 checklistBody.querySelectorAll('.fast-fill-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const category = button.dataset.category;
                         let nextElement = button.closest('tr').nextElementSibling;
                         
-                        while (nextElement && !nextElement.querySelector('.fast-fill-btn')) {
+                        while (nextElement && !nextElement.querySelector('.fast-fill-btn')) { // Stop at next category header
                             if (nextElement.classList.contains('task-row') && nextElement.dataset.category === category) {
                                 const checkbox = nextElement.querySelector('.status-checkbox');
                                 if (checkbox) {
                                     checkbox.checked = true;
+                                    const pillButton = nextElement.querySelector('.status-pill-button');
+                                    updatePillButtonVisuals(pillButton, true);
+                                }
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                        }
+                    });
+                });
+
+                // Uncheck All logic
+                checklistBody.querySelectorAll('.uncheck-all-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const category = button.dataset.category;
+                        let nextElement = button.closest('tr').nextElementSibling;
+                        
+                        while (nextElement && !nextElement.querySelector('.fast-fill-btn')) { // Stop at next category header
+                            if (nextElement.classList.contains('task-row') && nextElement.dataset.category === category) {
+                                const checkbox = nextElement.querySelector('.status-checkbox');
+                                if (checkbox) {
+                                    checkbox.checked = false;
+                                    const pillButton = nextElement.querySelector('.status-pill-button');
+                                    updatePillButtonVisuals(pillButton, false);
                                 }
                             }
                             nextElement = nextElement.nextElementSibling;
@@ -319,7 +589,8 @@
                 const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]:checked');
                 
                 checkboxes.forEach(cb => {
-                    const label = cb.nextElementSibling.textContent;
+                    // UPDATED: Get label from data attribute
+                    const label = cb.dataset.label; 
                     if (filterMap[label]) {
                         selectedFilters.add(filterMap[label]);
                     }
@@ -401,6 +672,7 @@
             function saveCurrentChecklist() {
                 const checklists = loadChecklistsFromStorage();
                 
+                // FIXED: Re-add clientName and accountId
                 const clientInfo = {
                     clientName: clientNameInput.value,
                     accountId: accountIdInput.value,
@@ -409,7 +681,8 @@
 
                 const selectedFilters = [];
                 filterForm.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-                    const label = cb.nextElementSibling.textContent;
+                    // UPDATED: Get label from data attribute
+                    const label = cb.dataset.label;
                     if (filterMap[label]) {
                         selectedFilters.push(filterMap[label]);
                     }
@@ -471,6 +744,9 @@
                     if (elementId) {
                         const checkbox = document.getElementById(elementId);
                         if (checkbox) checkbox.checked = true;
+                        // NEW: Update filter pill visual
+                        const pillButton = document.querySelector(`.filter-pill-button[data-target="${elementId}"]`);
+                        updateFilterPillVisuals(pillButton, true);
                     }
                 });
                 
@@ -478,6 +754,7 @@
                 populateChecklistState(checklist.tasks);
                 filterForm.addEventListener('change', onFilterChange);
 
+                checkExportButtonState(); // NEW: Check button state after loading
                 showToast('Checklist loaded!', 'info'); 
             }
 
@@ -498,6 +775,9 @@
                     if (savedTask) {
                         row.querySelector('.status-checkbox').checked = savedTask.status; 
                         row.querySelector('.notes-input').value = savedTask.notes;
+                        // REVERTED: Update pill button visual
+                        const pillButton = row.querySelector('.status-pill-button');
+                        updatePillButtonVisuals(pillButton, savedTask.status);
                     }
                 });
             }
@@ -519,6 +799,7 @@
 
             function startNewChecklist() {
                 currentLoadedChecklistId = null;
+                // FIXED: Clear all inputs
                 clientNameInput.value = '';
                 accountIdInput.value = '';
                 campaignIdInput.value = '';
@@ -526,10 +807,14 @@
                 filterForm.removeEventListener('change', onFilterChange);
                 filterForm.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                     cb.checked = false;
+                    // NEW: Update filter pill visual
+                    const pillButton = document.querySelector(`.filter-pill-button[data-target="${cb.id}"]`);
+                    updateFilterPillVisuals(pillButton, false);
                 });
                 filterForm.addEventListener('change', onFilterChange);
                 
                 filterAndRender(); 
+                checkExportButtonState(); // NEW: Check button state after clearing
             }
 
             /**
@@ -566,7 +851,15 @@
              * Event handler for filter changes.
              */
             function onFilterChange() {
-                currentLoadedChecklistId = null; 
+                // NEW: Handle Chaining -> Customer ID dependency
+                if (chainingCheckbox.checked && !customerIdCheckbox.checked) {
+                    customerIdCheckbox.checked = true;
+                    // Update pill visual
+                    const pillButton = document.querySelector(`.filter-pill-button[data-target="customerId"]`);
+                    updateFilterPillVisuals(pillButton, true);
+                }
+
+                // currentLoadedChecklistId = null; // REMOVED: This was causing the save bug
                 filterAndRender();
             }
 
@@ -574,13 +867,8 @@
 
             filterForm.addEventListener('change', onFilterChange);
             
-            chainingCheckbox.addEventListener('change', () => {
-                if (chainingCheckbox.checked) {
-                    customerIdCheckbox.checked = true;
-                    currentLoadedChecklistId = null; 
-                    filterAndRender();
-                }
-            });
+            // NEW: Add listener to campaignId input to control export button
+            campaignIdInput.addEventListener('input', checkExportButtonState);
 
             // LocalStorage Button Listeners
             saveButton.addEventListener('click', saveCurrentChecklist);
@@ -635,7 +923,8 @@
                         // Add footer text
                         pdf.setFontSize(9).setFont('helvetica', 'normal');
                         pdf.setTextColor(footerTextColor);
-                        const footerText = `Client: ${clientName}  |  Account ID: ${accountId}  |  Campaign ID: ${campaignId}`;
+                        // FIXED: Corrected footer text variable names
+                        const footerText = `Client: ${clientName}   |   Account ID: ${accountId}   |   Campaign ID: ${campaignId}`;
                         pdf.text(footerText, pdfWidth / 2, pdfHeight - (footerHeight / 2) + 3, { align: 'center' }); // Center text in footer
                     };
                     
@@ -661,8 +950,13 @@
                     // --- Collect selected filters ---
                     const getSelectedFilters = (containerId) => {
                         const filters = [];
+                        // UPDATED: Find the button and its text span
                         document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`).forEach(cb => {
-                            filters.push(cb.nextElementSibling.textContent);
+                            const button = cb.nextElementSibling; // This is the button
+                            const textSpan = button.querySelector('.filter-text');
+                            if (textSpan) {
+                                filters.push(textSpan.textContent);
+                            }
                         });
                         return filters.length > 0 ? filters : ['None Selected'];
                     };
@@ -718,11 +1012,53 @@
                         scale: 2,
                         backgroundColor: bgColor,
                         onclone: (doc) => {
-                            // NEW: This runs on the cloned document *before* capture
+                            // NEW: Explicitly set text colors for PDF capture
+                            doc.querySelectorAll('#checklist-container h2').forEach(el => el.style.color = '#ffffff');
+                            doc.querySelectorAll('#checklist-container th').forEach(el => el.style.color = '#2dd4bf');
+                            doc.querySelectorAll('#checklist-container td').forEach(el => {
+                                // Find category rows
+                                const categorySpan = el.querySelector('span');
+                                if (categorySpan && el.getAttribute('colspan') === '3') {
+                                    el.style.color = '#67e8f9'; // Bright teal for category headers
+                                } else {
+                                    el.style.color = '#f3f4f6'; // Light gray for task text
+                                }
+                            });
+                            
+                            // This runs on the cloned document *before* capture
                             // Remove empty placeholders
                             doc.querySelectorAll('.notes-input').forEach(input => {
                                 if (!input.value || !input.value.trim()) {
                                     input.placeholder = '';
+                                }
+                            });
+                            
+                            // --- PDF FIX ---
+                            // The complex pill buttons don't render reliably in html2canvas.
+                            // We will replace them with simple, styled text for the PDF capture.
+                            doc.querySelectorAll('td').forEach(td => {
+                                const pillButton = td.querySelector('.status-pill-button');
+                                const checkbox = td.querySelector('.status-checkbox');
+
+                                if (pillButton && checkbox) {
+                                    const isChecked = checkbox.checked;
+                                    const text = isChecked ? 'Checked' : 'Not Checked';
+                                    // Use visible colors
+                                    const color = isChecked ? '#34d399' : '#d1d5db'; // green-400 or gray-300
+
+                                    // Remove the complex button
+                                    pillButton.remove();
+
+                                    // Add a new, simple span with inline styles
+                                    const simpleText = doc.createElement('span');
+                                    simpleText.textContent = text;
+                                    simpleText.style.color = color;
+                                    simpleText.style.fontSize = '12px';
+                                    simpleText.style.fontFamily = 'Inter, sans-serif';
+                                    simpleText.style.fontWeight = '500';
+                                    
+                                    // Append the simple text to the cell
+                                    td.appendChild(simpleText);
                                 }
                             });
                         }
@@ -782,7 +1118,19 @@
                         currentSliceY += slicePixelHeight;
                     }
 
-                    pdf.save(`${clientName.replace(/\s+/g, '_')}_Integration_Checklist.pdf`);
+                    // NEW: Updated filename logic
+                    const clientNameVal = clientNameInput.value.trim();
+                    const accountIdVal = accountIdInput.value.trim();
+                    const campaignIdVal = campaignIdInput.value.trim(); // Already know this has value
+                    
+                    let fileName = "";
+                    if (clientNameVal && accountIdVal && campaignIdVal) {
+                        fileName = `${clientNameVal} (${accountIdVal} - ${campaignIdVal}) - Integration Final Review.pdf`;
+                    } else {
+                        fileName = `(${campaignIdVal}) - Integration Final Review.pdf`;
+                    }
+
+                    pdf.save(fileName);
 
                 } catch (error) {
                     console.error("Failed to generate PDF:", error);
@@ -800,7 +1148,28 @@
 
 
             // --- INITIALIZATION ---
+            
+            /**
+             * NEW: Sets up click listeners for all filter pill buttons.
+             */
+            function setupFilterPills() {
+                document.querySelectorAll('.filter-pill-button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetId = button.dataset.target;
+                        const checkbox = document.getElementById(targetId);
+                        if (checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            updateFilterPillVisuals(button, checkbox.checked);
+                            // Manually dispatch change event on the form to trigger filtering
+                            filterForm.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    });
+                });
+            }
+
+            setupFilterPills(); // Set up listeners for the new filter pills
             renderHistoryList(); // Load and display any saved checklists on page load
+            checkExportButtonState(); // NEW: Set initial export button state
         });
     </script>
 

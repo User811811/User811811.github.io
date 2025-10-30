@@ -98,6 +98,7 @@
                             <div class="flex items-center"><input type="checkbox" id="app" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="app" class="ml-2 text-sm">App</label></div>
                             <div class="flex items-center"><input type="checkbox" id="chaining" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="chaining" class="ml-2 text-sm">Chaining</label></div>
                             <div class="flex items-center"><input type="checkbox" id="consent" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="consent" class="ml-2 text-sm">Consent Mode</label></div>
+                            <div class="flex items-center"><input type="checkbox" id="crossdomain" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="crossDomain" class="ml-2 text-sm">Cross Domain Tracking</label></div>
                             <div class="flex items-center"><input type="checkbox" id="shared" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-teal-500 focus:ring-teal-500"><label for="shared" class="ml-2 text-sm">Shared Events (Needs suggestions)</label></div>
                         </div>
                     </div>
@@ -174,9 +175,9 @@
                 { category: 'General & Gateway Settings', task: '"Program Tracking Template" contains "im_ref={clickid}"', integrations: [], datapoints: [] },
                 { category: 'General & Gateway Settings', task: '"Deep Linking" URLs are accurate', integrations: [], datapoints: [] },
                 { category: 'Universal Tracking Tag Review', task: 'Click ID saved to "IR_{CampaignID}" cookie', integrations: ['UTT'], datapoints: [] },
-                { category: 'Universal Tracking Tag Review', task: 'Landing Page URL persists querystring until cookie policy is accepted', integrations: ['UTT'], datapoints: [] },
-                { category: 'Universal Tracking Tag Review', task: 'Click ID passed between domains when site transition occurs', integrations: ['UTT'], datapoints: [] },
-                { category: 'Universal Tracking Tag Review', task: 'UTT loads under 3 seconds. Use Notes to log time taken', integrations: ['UTT'], datapoints: [] },
+                { category: 'Universal Tracking Tag Review', task: 'Landing Page URL persists querystring until cookie policy is accepted', integrations: ['UTT'], datapoints: ['crossdomain'] },
+                { category: 'Universal Tracking Tag Review', task: 'Click ID passed between domains when site transition occurs', integrations: ['UTT'], datapoints: ['CrossDomain'] },
+                { category: 'Universal Tracking Tag Review', task: 'UTT loads under 3 seconds, use Notes to log time taken', integrations: ['UTT'], datapoints: [] },
                 { category: 'Universal Tracking Tag Review', task: 'Identify function invoked for anonymous users', integrations: ['UTT'], datapoints: [] },
                 { category: 'Universal Tracking Tag Review', task: 'Identify function invoked for logged-in users', integrations: ['UTT'], datapoints: [] },
                 { category: 'Conversion Payload Review', task: 'Logs contain no errors in relation to test events', integrations: [], datapoints: [] },
@@ -212,7 +213,7 @@
             const filterMap = {
                 // Labels to Values
                 'Universal Tracking Tag': 'UTT', 'Conversions API': 'API', 'Page Load API': 'PLA', 'FTP / Email': 'FTP',
-                'Sale': 'Sale', 'App': 'App', 'Chaining': 'Chained', 'Consent Mode': 'Consent', 'Shared Events': 'Shared',
+                'Sale': 'Sale', 'App': 'App', 'Chaining': 'Chained', 'Consent Mode': 'Consent', 'Cross Domain Tracking': 'CrossDomain', 'Shared Events': 'Shared',
                 'Customer ID': 'ID', 'Customer Email': 'Email', 'Customer Status': 'Status', 'Order Discount': 'Discount',
                 'Promo Code': 'Promo', 'Currency Code': 'Currency', 'Custom Text/Numeric/Money/Date': 'Custom',
             };
@@ -221,7 +222,7 @@
             const reverseFilterMap = {
                 // Values to IDs
                 'UTT': 'utt', 'API': 'capi', 'PLA': 'pla', 'FTP': 'ftp',
-                'Sale': 'sale', 'App': 'app', 'Chained': 'chaining', 'Consent': 'consent', 'Shared': 'shared',
+                'Sale': 'sale', 'App': 'app', 'Chained': 'chaining', 'Consent': 'consent', 'CrossDomain': 'crossDomain', 'Shared': 'shared',
                 'ID': 'customerId', 'Email': 'customerEmail', 'Status': 'customerStatus', 'Discount': 'orderDiscount',
                 'Promo': 'promoCode', 'Currency': 'currencyCode', 'Custom': 'custom'
             };
@@ -589,7 +590,7 @@
                 showToast('New checklist started.', 'info');
             });
             
-            // --- PDF EXPORT LOGIC (REBUILT) ---
+            // --- PDF EXPORT LOGIC ---
             exportPdfButton.addEventListener('click', async () => {
                 const clientName = clientNameInput.value || 'N/A';
                 const accountId = accountIdInput.value || 'N/A';
@@ -673,7 +674,7 @@
                     let currentY = 60;
                     pdf.setFontSize(14).setFont('helvetica', 'bold');
                     pdf.setTextColor(subheaderTextColor);
-                    pdf.text('Integration Type:', 20, currentY);
+                    pdf.text('Integration Type(s):', 20, currentY);
                     
                     pdf.setFontSize(10).setFont('helvetica', 'normal');
                     pdf.setTextColor(bodyTextColor);
@@ -686,7 +687,7 @@
                     currentY += 10;
                     pdf.setFontSize(14).setFont('helvetica', 'bold');
                     pdf.setTextColor(subheaderTextColor);
-                    pdf.text('Conversion Type:', 20, currentY);
+                    pdf.text('Conversion Type(s):', 20, currentY);
                     
                     pdf.setFontSize(10).setFont('helvetica', 'normal');
                     pdf.setTextColor(bodyTextColor);
@@ -699,7 +700,7 @@
                     currentY += 10;
                     pdf.setFontSize(14).setFont('helvetica', 'bold');
                     pdf.setTextColor(subheaderTextColor);
-                    pdf.text('Additional Datapoints:', 20, currentY);
+                    pdf.text('Additional Datapoint(s):', 20, currentY);
                     
                     pdf.setFontSize(10).setFont('helvetica', 'normal');
                     pdf.setTextColor(bodyTextColor);

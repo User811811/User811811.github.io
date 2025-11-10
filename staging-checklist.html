@@ -13,28 +13,85 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: var(--color-background-main);
+            color: var(--color-text-primary);
         }
+        
+        /* --- THEME COLOR VARIABLES --- */
+        :root[data-theme="light"] {
+            --color-primary-accent: #C85A5A;
+            --color-primary-accent-hover: #AF4E4E;
+            --color-primary-accent-subtle: #E58A8A;
+            --color-background-main: #F9FAFB; /* gray-50 */
+            --color-surface-card: #FFFFFF; /* white */
+            --color-surface-inset: #F3F4F6; /* gray-100 */
+            --color-text-primary: #1F2937; /* gray-800 */
+            --color-text-secondary: #6B7280; /* gray-500 */
+            --color-text-strong: #111827; /* gray-900 */
+            --color-border: #E5E7EB; /* gray-200 */
+            --color-border-hover: #D1D5DB; /* gray-300 */
+            --color-neutral-bg: #E5E7EB; /* gray-200 */
+            --color-neutral-bg-hover: #D1D5DB; /* gray-300 */
+            --color-danger-bg: #E53E3E;
+            --color-danger-bg-hover: #C53030;
+            --color-text-on-accent: #FFFFFF;
+        }
+
+        :root[data-theme="dark"] {
+            --color-primary-accent: #D57373;
+            --color-primary-accent-hover: #C85A5A;
+            --color-primary-accent-subtle: #E58A8A;
+            --color-background-main: #000000; /* black */
+            --color-surface-card: #111827; /* gray-900 */
+            --color-surface-inset: #1F2937; /* gray-800 */
+            --color-text-primary: #E5E7EB; /* gray-200 */
+            --color-text-secondary: #9CA3AF; /* gray-400 */
+            --color-text-strong: #FFFFFF; /* white */
+            --color-border: #374151; /* gray-700 */
+            --color-border-hover: #4B5563; /* gray-600 */
+            --color-neutral-bg: #4B5563; /* gray-600 */
+            --color-neutral-bg-hover: #374151; /* gray-700 */
+            --color-danger-bg: #C53030;
+            --color-danger-bg-hover: #E53E3E;
+            --color-text-on-accent: #FFFFFF;
+        }
+
         /* Custom styles for filter pills */
+        .filter-pill-button {
+            border-color: var(--color-border);
+        }
+        .filter-pill-button:hover {
+            background-color: var(--color-surface-inset);
+        }
         .filter-pill-button.active {
-            background-color: #14B8A6; /* teal-500 */
-            color: white;
-            border-color: #0F766E; /* teal-700 */
+            background-color: var(--color-primary-accent);
+            color: var(--color-text-on-accent);
+            border-color: var(--color-primary-accent-hover);
+        }
+        .filter-pill-button .filter-dot {
+             background-color: var(--color-neutral-bg);
         }
         .filter-pill-button.active .filter-dot {
-            background-color: white;
+            background-color: var(--color-text-on-accent);
         }
         /* Custom styles for status pills */
+        .status-pill-button {
+            border-color: var(--color-border);
+        }
         .status-pill-button.checked {
-            background-color: #22C55E; /* green-500 */
-            color: white;
-            border-color: #15803D; /* green-700 */
+            background-color: var(--color-primary-accent);
+            color: var(--color-text-on-accent);
+            border-color: var(--color-primary-accent-hover);
+        }
+        .status-pill-button .status-dot {
+            background-color: var(--color-text-secondary);
         }
         .status-pill-button.checked .status-dot {
-            background-color: white;
+            background-color: var(--color-text-on-accent);
         }
         /* Custom style for disabled inputs within buttons */
         #autosave-toggle-btn input:disabled {
-            background-color: #4B5563; /* gray-600 */
+            background-color: var(--color-neutral-bg);
             cursor: not-allowed;
         }
         /* Hide scrollbar for textarea, but allow scrolling */
@@ -42,100 +99,223 @@
             overflow: hidden;
             resize: none;
         }
+        /* Fix for Check All button visibility in light mode */
+        .check-all-btn {
+            transition: color 0.3s, background-color 0.3s;
+        }
+        [data-theme="light"] .check-all-btn {
+            color: var(--color-danger-bg-hover);
+            font-weight: 500;
+        }
+        [data-theme="light"] .check-all-btn:hover {
+            color: var(--color-text-on-accent);
+        }
+        [data-theme="dark"] .check-all-btn {
+            color: var(--color-text-on-accent);
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 antialiased">
+<body class="antialiased">
 
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3"></div>
+    
+    <!-- Flyout Toggle Button -->
+    <button id="flyout-toggle-btn" class="fixed top-6 left-6 z-50 p-2 rounded-full bg-[var(--color-surface-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-inset)] shadow-lg transition-all duration-300 lg:left-[25rem]">
+        <svg id="flyout-arrow-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+    </button>
 
-    <div class="p-4 sm:p-6 lg:p-8">
-        <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold tracking-tight text-white">Integration Checklist</h1>
-            <p class="mt-2 text-lg text-gray-400">Manage client integration tasks with ease.</p>
-        </header>
-
-        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Panel: Controls -->
-            <section class="lg:col-span-1 bg-gray-800 p-6 rounded-2xl shadow-lg space-y-6">
-                <!-- Client Info -->
-                <div>
-                    <h2 class="text-xl font-semibold mb-4 text-white">Client Info</h2>
-                    <div class="space-y-4">
-                        <input type="text" id="client-name" placeholder="Client Name" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
-                        <input type="text" id="account-id" placeholder="Account ID" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
-                        <input type="text" id="campaign-id" placeholder="Campaign ID *" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
-                    </div>
+    <!-- Flyout Panel (was Left Panel) -->
+    <aside id="left-panel" class="fixed top-0 left-0 z-40 w-96 h-screen transition-transform duration-300 bg-[var(--color-surface-card)] shadow-lg overflow-y-auto">
+        <section class="p-6 space-y-6">
+            <!-- Client Info -->
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-[var(--color-text-strong)]">Client Info</h2>
+                <div class="space-y-4">
+                    <input type="text" id="client-name" placeholder="Client Name" class="w-full bg-[var(--color-surface-inset)] border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:ring-2 focus:ring-[var(--color-primary-accent)] focus:border-[var(--color-primary-accent)] transition">
+                    <input type="text" id="account-id" placeholder="Account ID" class="w-full bg-[var(--color-surface-inset)] border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:ring-2 focus:ring-[var(--color-primary-accent)] focus:border-[var(--color-primary-accent)] transition">
+                    <input type="text" id="campaign-id" placeholder="Campaign ID *" class="w-full bg-[var(--color-surface-inset)] border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:ring-2 focus:ring-[var(--color-primary-accent)] focus:border-[var(--color-primary-accent)] transition">
                 </div>
+            </div>
 
-                <!-- Filters -->
-                <div id="filters-container" class="space-y-6"></div>
+            <!-- Filters -->
+            <div id="filters-container" class="space-y-6"></div>
 
-                <!-- Saved Checklists -->
-                <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-white">Your Saved Checklists</h2>
-                    </div>
-                    <div id="history-list" class="max-h-[300px] overflow-y-auto bg-gray-900/50 p-3 rounded-lg space-y-2 border border-gray-700">
-                        <!-- History items will be injected here -->
-                    </div>
+            <!-- Saved Checklists -->
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-[var(--color-text-strong)]">Your Saved Checklists</h2>
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-col space-y-3">
-                     <button id="new-checklist-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">Start New Checklist</button>
-                     <button id="save-checklist-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">Save Current Checklist</button>
-                    <button id="autosave-toggle-btn" class="flex items-center justify-between w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
-                        <div class="flex items-center gap-2">
-                             <span>Auto-Save</span>
-                             <input type="number" id="autosave-interval" value="5" min="1" class="w-12 text-center bg-gray-700 rounded text-white" disabled>
-                             <span>min</span>
-                        </div>
-                        <span id="autosave-status" class="font-semibold">Off</span>
-                    </button>
-                    <button id="save-on-change-toggle-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-between">
-                         <span>Save on Change</span>
-                         <span id="save-on-change-status" class="font-semibold">Off</span>
-                    </button>
-                    <button id="delete-all-btn" class="w-full bg-red-800 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-between disabled:bg-gray-500 disabled:cursor-not-allowed">
-                        <span>Delete All Saved Checklists</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
-                   </button>
+                <div id="history-list" class="max-h-[300px] overflow-y-auto bg-[var(--color-background-main)] p-3 rounded-lg space-y-2 border border-[var(--color-border)]">
+                    <!-- History items will be injected here -->
                 </div>
+            </div>
 
-                 <!-- Export Button -->
-                <button id="export-pdf-btn" disabled class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                    <svg id="export-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    <span id="export-text">Export to PDF</span>
-                    <svg id="export-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <!-- Action Buttons -->
+            <div class="flex flex-col space-y-3">
+                 <button id="new-checklist-btn" class="w-full bg-[var(--color-neutral-bg)] hover:bg-[var(--color-neutral-bg-hover)] text-[var(--color-text-strong)] font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">Start New Checklist</button>
+                 <button id="save-checklist-btn" class="w-full bg-[var(--color-primary-accent)] hover:bg-[var(--color-primary-accent-hover)] text-[var(--color-text-on-accent)] font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center">Save Current Checklist</button>
+                <button id="autosave-toggle-btn" class="flex items-center justify-between w-full bg-[var(--color-neutral-bg)] hover:bg-[var(--color-neutral-bg-hover)] text-[var(--color-text-strong)] font-bold py-2 px-4 rounded-md transition duration-300">
+                    <div class="flex items-center gap-2">
+                         <span>Auto-Save</span>
+                         <input type="number" id="autosave-interval" value="5" min="1" class="w-12 text-center bg-[var(--color-surface-inset)] rounded text-[var(--color-text-primary)]" disabled>
+                         <span>min</span>
+                    </div>
+                    <span id="autosave-status" class="font-semibold">Off</span>
                 </button>
-            </section>
+                <button id="save-on-change-toggle-btn" class="w-full bg-[var(--color-neutral-bg)] hover:bg-[var(--color-neutral-bg-hover)] text-[var(--color-text-strong)] font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-between">
+                     <span>Save on Change</span>
+                     <span id="save-on-change-status" class="font-semibold">Off</span>
+                </button>
+                <button id="delete-all-btn" class="w-full bg-[var(--color-danger-bg)] hover:bg-[var(--color-danger-bg-hover)] text-[var(--color-text-on-accent)] font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-between disabled:bg-gray-500 disabled:cursor-not-allowed">
+                    <span>Delete All Saved Checklists</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+               </button>
+            </div>
 
-            <!-- Right Panel: Checklist -->
-            <section class="lg:col-span-2 bg-gray-800 p-6 rounded-2xl shadow-lg">
-                <div id="checklist-container" class="overflow-x-auto">
-                     <h2 class="text-2xl font-bold mb-4 text-white">Checklist</h2>
-                    <table class="w-full text-sm text-left text-gray-400">
-                        <thead class="text-xs text-gray-300 uppercase bg-gray-700">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 w-1/2">Task</th>
-                                <th scope="col" class="px-6 py-3 w-1/6 text-center">Status</th>
-                                <th scope="col" class="px-6 py-3">Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody id="checklist-body">
-                            <!-- Checklist items will be injected here -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+             <!-- Export Button -->
+            <button id="export-pdf-btn" disabled class="w-full bg-[var(--color-primary-accent)] hover:bg-[var(--color-primary-accent-hover)] text-[var(--color-text-on-accent)] font-bold py-3 px-4 rounded-md transition duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                <svg id="export-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                <span id="export-text">Export to PDF</span>
+                <svg id="export-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+        </section>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div id="main-content-wrapper" class="transition-all duration-300 lg:ml-96">
+        <div class="p-4 sm:p-6 lg:p-8">
+            <header class="mb-8 text-center relative">
+                <h1 class="text-4xl font-bold tracking-tight text-[var(--color-text-strong)]">Integration Checklist</h1>
+                <p class="mt-2 text-lg text-[var(--color-text-secondary)]">Manage client integration tasks with ease.</p>
+                
+                <!-- Theme Switcher -->
+                <button id="theme-toggle-btn" class="absolute top-0 right-0 p-2 rounded-full text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-inset)]" aria-label="Toggle theme">
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <svg id="auto-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </button>
+            </header>
+    
+            <main>
+                <!-- Right Panel: Checklist -->
+                <section class="bg-[var(--color-surface-card)] p-6 rounded-2xl shadow-lg">
+                    <div id="checklist-container" class="overflow-x-auto">
+                         <h2 class="text-2xl font-bold mb-4 text-[var(--color-text-strong)]">Checklist</h2>
+                        <table class="w-full text-sm text-left text-[var(--color-text-secondary)]">
+                            <thead class="text-xs uppercase bg-[var(--color-surface-inset)]">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 w-1/2">Task</th>
+                                    <th scope="col" class="px-6 py-3 w-1/6 text-center">Status</th>
+                                    <th scope="col" class="px-6 py-3">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checklist-body">
+                                <!-- Checklist items will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
     const { jsPDF } = window.jspdf;
+    
+    // --- THEME MANAGEMENT ---
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+    const autoIcon = document.getElementById('auto-icon');
+    const docElement = document.documentElement;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const applyTheme = (theme) => {
+        localStorage.setItem('theme', theme);
+
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.add('hidden');
+        autoIcon.classList.add('hidden');
+
+        let effectiveTheme = theme;
+        if (theme === 'auto') {
+            effectiveTheme = mediaQuery.matches ? 'dark' : 'light';
+            autoIcon.classList.remove('hidden');
+        } else if (theme === 'dark') {
+            moonIcon.classList.remove('hidden');
+        } else { // light
+            sunIcon.classList.remove('hidden');
+        }
+        
+        docElement.setAttribute('data-theme', effectiveTheme);
+    };
+
+    const cycleTheme = () => {
+        const currentTheme = localStorage.getItem('theme') || 'auto';
+        let newTheme;
+        if (currentTheme === 'light') {
+            newTheme = 'dark';
+        } else if (currentTheme === 'dark') {
+            newTheme = 'auto';
+        } else { // auto
+            newTheme = 'light';
+        }
+        applyTheme(newTheme);
+    };
+
+    themeToggleBtn.addEventListener('click', cycleTheme);
+    
+    mediaQuery.addEventListener('change', () => {
+        if (localStorage.getItem('theme') === 'auto') {
+            applyTheme('auto');
+        }
+    });
+
+    const initialTheme = localStorage.getItem('theme') || 'auto';
+    applyTheme(initialTheme);
+    
+    // --- FLYOUT MANAGEMENT ---
+    const flyoutToggleBtn = document.getElementById('flyout-toggle-btn');
+    const flyoutArrowIcon = document.getElementById('flyout-arrow-icon');
+    const leftPanel = document.getElementById('left-panel');
+    const mainContentWrapper = document.getElementById('main-content-wrapper');
+
+    let isFlyoutOpen = true;
+
+    const setFlyoutState = (isOpen) => {
+        isFlyoutOpen = isOpen;
+        if (isOpen) {
+            leftPanel.classList.remove('-translate-x-full');
+            mainContentWrapper.classList.add('lg:ml-96');
+            flyoutToggleBtn.classList.remove('lg:left-6');
+            flyoutToggleBtn.classList.add('lg:left-[25rem]');
+            flyoutArrowIcon.classList.remove('rotate-180');
+            document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
+        } else {
+            leftPanel.classList.add('-translate-x-full');
+            mainContentWrapper.classList.remove('lg:ml-96');
+            flyoutToggleBtn.classList.add('lg:left-6');
+            flyoutToggleBtn.classList.remove('lg:left-[25rem]');
+            flyoutArrowIcon.classList.add('rotate-180');
+            document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
+        }
+    };
+
+    flyoutToggleBtn.addEventListener('click', () => {
+        setFlyoutState(!isFlyoutOpen);
+    });
+
 
     // --- DATA ---
     const checklistData = [
@@ -169,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { category: 'End to End Tests', task: 'Revenue & Payout verified by client', integrations: [], conversions:['Sale'], datapoints: [] },
         { category: 'End to End Tests', task: 'Events have attributed to the correct Partner', integrations: [], conversions:[], datapoints: [] },
         { category: 'End to End Tests', task: 'Chained events are correctly chained (Referral Type: Action)', integrations: [], conversions:['Chaining'], datapoints: [] },
-        { category: 'End to End Tests', task: '<a href="https://impact.atlassian.net/wiki/spaces/IE/pages/4813029543/How+to+validate+a+Consent+Mode+integration" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:text-teal-300">Consent Mode Integration reviewed.</a>', integrations: [], conversions:['Consent'], datapoints: [] },
+        { category: 'End to End Tests', task: '<a href="https://impact.atlassian.net/wiki/spaces/IE/pages/4813029543/How+to+validate+a+Consent+Mode+integration" target="_blank" rel="noopener noreferrer" class="text-[var(--color-primary-accent-subtle)] hover:text-[var(--color-primary-accent)]">Consent Mode Integration reviewed.</a>', integrations: [], conversions:['Consent'], datapoints: [] },
         { category: 'Modifications / Reversals', task: 'What method of reversals will the client be using? Answer in Notes', integrations: [], conversions:[], datapoints: [] },
         { category: 'Modifications / Reversals', task: 'Order level reversals have been tested', integrations: [], conversions:[], datapoints: [] },
         { category: 'Modifications / Reversals', task: 'Item level returns have been tested', integrations: [], conversions:[], datapoints: [] },
@@ -197,7 +377,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 Chaining: "Chaining",
                 Consent: "Consent Mode",
                 CrossDomain: "Cross Domain Tracking",
-                SharedEvents: "Shared Events (Needs suggestions)"
+                SharedEvents: "Shared Events (Needs suggestions)",
+                LeadOnly: "Lead Only",
+                SaleOnly: "Sale Only",
+                LeadAndSale: "Lead & Sale"
             }
         },
         datapoints: {
@@ -244,22 +427,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- TOAST NOTIFICATIONS ---
     const showToast = (message, type = 'info') => {
         const colors = {
-            success: 'bg-teal-500',
-            error: 'bg-red-500',
-            info: 'bg-blue-500'
+            success: 'bg-[var(--color-primary-accent)]',
+            error: 'bg-[var(--color-danger-bg)]',
+            info: 'bg-[var(--color-neutral-bg)]'
         };
+        const textColors = {
+            success: 'text-[var(--color-text-on-accent)]',
+            error: 'text-[var(--color-text-on-accent)]',
+            info: 'text-[var(--color-text-strong)]'
+        }
         const toast = document.createElement('div');
-        toast.className = `transform transition-all duration-300 opacity-0 translate-x-12 p-4 rounded-lg shadow-lg text-white ${colors[type]}`;
+        toast.className = `transform transition-all duration-300 opacity-0 translate-x-12 p-4 rounded-lg shadow-lg ${colors[type]} ${textColors[type]}`;
         toast.textContent = message;
         toastContainer.appendChild(toast);
 
-        // Animate in
         setTimeout(() => {
             toast.classList.remove('opacity-0', 'translate-x-12');
             toast.classList.add('opacity-100', 'translate-x-0');
         }, 10);
 
-        // Animate out
         setTimeout(() => {
             toast.classList.remove('opacity-100', 'translate-x-0');
             toast.classList.add('opacity-0', 'translate-x-12');
@@ -272,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         filtersContainer.innerHTML = '';
         for (const [key, filterGroup] of Object.entries(filterDefinitions)) {
             const groupDiv = document.createElement('div');
-            groupDiv.innerHTML = `<h3 class="text-lg font-semibold mb-3 text-white">${filterGroup.title}</h3>`;
+            groupDiv.innerHTML = `<h3 class="text-lg font-semibold mb-3 text-[var(--color-text-strong)]">${filterGroup.title}</h3>`;
             const itemsDiv = document.createElement('div');
             itemsDiv.className = 'space-y-2';
             itemsDiv.dataset.filterGroup = key;
@@ -280,9 +466,9 @@ document.addEventListener('DOMContentLoaded', () => {
             for (const [itemKey, itemValue] of Object.entries(filterGroup.items)) {
                 const buttonId = `filter-${key}-${itemKey}`;
                 const pillHtml = `
-                    <label for="${buttonId}" class="filter-pill-button flex items-center w-full p-2 border-2 border-gray-600 rounded-full cursor-pointer transition hover:bg-gray-700">
+                    <label for="${buttonId}" class="filter-pill-button flex items-center w-full p-2 border-2 rounded-full cursor-pointer transition">
                         <input type="checkbox" id="${buttonId}" data-filter-key="${itemKey}" class="hidden">
-                        <span class="filter-dot w-3 h-3 bg-gray-500 rounded-full mr-3 ml-1"></span>
+                        <span class="filter-dot w-3 h-3 rounded-full mr-3 ml-1"></span>
                         <span class="text-sm">${itemValue}</span>
                     </label>
                 `;
@@ -309,9 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const requiredFilters = [...item.integrations, ...item.conversions, ...item.datapoints];
             const allActiveFilters = [...activeIntegrationFilters, ...activeConversionFilters, ...activeDatapointFilters];
 
-            // Item is shown if all its required filters are present in the active filters list
             const allRequirementsMet = requiredFilters.every(req => allActiveFilters.includes(req));
-
             return allRequirementsMet;
         });
 
@@ -326,14 +510,14 @@ document.addEventListener('DOMContentLoaded', () => {
         checklistBody.innerHTML = '';
         for (const category in groupedData) {
             const categoryRow = document.createElement('tr');
-            categoryRow.className = 'bg-gray-700/50';
+            categoryRow.className = 'bg-[var(--color-surface-inset)]/50';
             categoryRow.innerHTML = `
-                <td colspan="3" class="px-6 py-3 font-bold text-teal-400">
+                <td colspan="3" class="px-6 py-3 font-bold text-[var(--color-primary-accent)]">
                     <div class="flex justify-between items-center">
                         <span>${category}</span>
                         <div class="space-x-2">
-                             <button data-category="${category}" class="check-all-btn text-xs bg-green-800/50 hover:bg-green-700/50 px-2 py-1 rounded-md">Check All</button>
-                             <button data-category="${category}" class="uncheck-all-btn text-xs bg-gray-600/50 hover:bg-gray-500/50 px-2 py-1 rounded-md">Uncheck All</button>
+                             <button data-category="${category}" class="check-all-btn text-xs bg-[var(--color-danger-bg)]/50 hover:bg-[var(--color-danger-bg-hover)]/50 px-2 py-1 rounded-md">Check All</button>
+                             <button data-category="${category}" class="uncheck-all-btn text-xs bg-[var(--color-neutral-bg)]/50 hover:bg-[var(--color-neutral-bg-hover)]/50 px-2 py-1 rounded-md text-[var(--color-text-primary)]">Uncheck All</button>
                         </div>
                     </div>
                 </td>
@@ -342,18 +526,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             groupedData[category].forEach(item => {
                 const itemRow = document.createElement('tr');
-                itemRow.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700/50';
+                itemRow.className = 'bg-[var(--color-surface-card)] border-b border-[var(--color-border)] hover:bg-[var(--color-surface-inset)]/50';
                 itemRow.dataset.task = item.task;
                 itemRow.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-gray-200">${item.task}</td>
+                    <td class="px-6 py-4 font-medium text-[var(--color-text-primary)]">${item.task}</td>
                     <td class="px-6 py-4 text-center">
-                        <button class="status-pill-button w-full flex items-center justify-center py-1 px-3 border-2 border-gray-600 rounded-full cursor-pointer transition">
-                            <span class="status-dot w-2.5 h-2.5 bg-gray-400 rounded-full mr-2"></span>
-                            <span class="status-text text-xs min-w-[68px] text-left">Not Checked</span>
+                        <button class="status-pill-button inline-flex items-center justify-center py-1 px-3 border-2 rounded-full cursor-pointer transition">
+                            <span class="status-dot w-2.5 h-2.5 rounded-full mr-2"></span>
+                            <span class="status-text text-xs">Not Checked</span>
                         </button>
                     </td>
                     <td class="px-6 py-4">
-                        <textarea class="notes-input w-full bg-gray-700 border border-gray-600 rounded-md px-2 py-1 text-white placeholder-gray-500 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-sm" rows="1"></textarea>
+                        <textarea class="notes-input w-full bg-[var(--color-surface-inset)] border border-[var(--color-border)] rounded-md px-2 py-1 text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:ring-1 focus:ring-[var(--color-primary-accent)] focus:border-[var(--color-primary-accent)] text-sm" rows="1"></textarea>
                     </td>
                 `;
                 checklistBody.appendChild(itemRow);
@@ -367,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteAllBtn.disabled = checklists.length === 0;
 
         if (checklists.length === 0) {
-            historyList.innerHTML = '<p class="text-gray-500 text-center text-sm p-4">No saved checklists yet.</p>';
+            historyList.innerHTML = `<p class="text-[var(--color-text-secondary)] text-center text-sm p-4">No saved checklists yet.</p>`;
             return;
         }
 
@@ -375,15 +559,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         checklists.forEach(checklist => {
             const itemDiv = document.createElement('div');
-            itemDiv.className = 'bg-gray-700/50 p-3 rounded-lg flex justify-between items-center hover:bg-gray-700 transition';
+            itemDiv.className = 'bg-[var(--color-surface-inset)]/50 p-3 rounded-lg flex justify-between items-center hover:bg-[var(--color-surface-inset)] transition';
             const date = new Date(checklist.lastSaved).toLocaleString();
             itemDiv.innerHTML = `
                 <div class="flex-grow cursor-pointer" data-id="${checklist.id}">
-                    <p class="font-semibold text-white">${checklist.clientName || 'Unnamed Checklist'}</p>
-                    <p class="text-xs text-gray-400">AC: ${checklist.accountId || 'N/A'} | C: ${checklist.campaignId || 'N/A'}</p>
-                    <p class="text-xs text-gray-500">Last Saved: ${date}</p>
+                    <p class="font-semibold text-[var(--color-text-strong)]">${checklist.clientName || 'Unnamed Checklist'}</p>
+                    <p class="text-xs text-[var(--color-text-secondary)]">AC: ${checklist.accountId || 'N/A'} | C: ${checklist.campaignId || 'N/A'}</p>
+                    <p class="text-xs text-[var(--color-text-secondary)]/70">Last Saved: ${date}</p>
                 </div>
-                <button data-id="${checklist.id}" class="delete-checklist-btn ml-4 text-red-500 hover:text-red-400 p-2 rounded-full">
+                <button data-id="${checklist.id}" class="delete-checklist-btn ml-4 text-[var(--color-danger-bg)] hover:text-[var(--color-danger-bg-hover)] p-2 rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
                 </button>
             `;
@@ -442,7 +626,6 @@ document.addEventListener('DOMContentLoaded', () => {
         accountIdInput.value = state.accountId;
         campaignIdInput.value = state.campaignId;
 
-        // Set filters
         document.querySelectorAll('#filters-container input[type="checkbox"]').forEach(cb => {
             const group = cb.closest('[data-filter-group]').dataset.filterGroup;
             const key = cb.dataset.filterKey;
@@ -452,7 +635,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderChecklist();
         
-        // Populate tasks
         document.querySelectorAll('#checklist-body tr[data-task]').forEach(row => {
             const taskKey = row.dataset.task;
             if (state.tasks[taskKey]) {
@@ -465,11 +647,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusPill.querySelector('.status-text').textContent = 'Checked';
                 }
                 notesInput.value = notes;
-                autoResizeTextarea(notesInput); // Resize on load
+                autoResizeTextarea(notesInput);
             }
         });
 
-        // Enable/disable export button
         exportPdfBtn.disabled = !campaignIdInput.value.trim();
         showToast('Checklist loaded successfully.', 'success');
     };
@@ -491,6 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderChecklist();
         exportPdfBtn.disabled = true;
+        setFlyoutState(true);
     };
 
     const saveCurrentChecklist = () => {
@@ -549,8 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         isAutoSaveOn = true;
-        autosaveToggleBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
-        autosaveToggleBtn.classList.add('bg-teal-600', 'hover:bg-teal-700');
+        autosaveToggleBtn.style.backgroundColor = 'var(--color-primary-accent)';
         autosaveStatus.textContent = 'On';
         autosaveIntervalInput.disabled = false;
 
@@ -567,8 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (autoSaveTimer) clearInterval(autoSaveTimer);
         autoSaveTimer = null;
         isAutoSaveOn = false;
-        autosaveToggleBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
-        autosaveToggleBtn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+        autosaveToggleBtn.style.backgroundColor = 'var(--color-neutral-bg)';
         autosaveStatus.textContent = 'Off';
         autosaveIntervalInput.disabled = true;
     };
@@ -576,16 +756,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const startSaveOnChange = () => {
         stopAutoSave();
         isSaveOnChangeOn = true;
-        saveOnChangeToggleBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
-        saveOnChangeToggleBtn.classList.add('bg-teal-600', 'hover:bg-teal-700');
+        saveOnChangeToggleBtn.style.backgroundColor = 'var(--color-primary-accent)';
         saveOnChangeStatus.textContent = 'On';
         showToast('Save on change enabled.', 'info');
     };
     
     const stopSaveOnChange = () => {
         isSaveOnChangeOn = false;
-        saveOnChangeToggleBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
-        saveOnChangeToggleBtn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+        saveOnChangeToggleBtn.style.backgroundColor = 'var(--color-neutral-bg)';
         saveOnChangeStatus.textContent = 'Off';
     };
 
@@ -631,7 +809,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 40;
 
-            // --- Page 1: Summary ---
             const addFooter = (pageNum) => {
                 doc.setFontSize(8);
                 doc.setTextColor(150);
@@ -640,11 +817,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 doc.text(`Page ${pageNum}`, pageWidth - margin, pageHeight - 20, { align: 'right' });
             };
             
-            // Background
-            doc.setFillColor(17, 24, 39); // gray-900
+            doc.setFillColor(0, 0, 0);
             doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
-            // Title
             doc.setFontSize(28);
             doc.setTextColor(255, 255, 255);
             doc.text('Integration Review Summary', pageWidth / 2, 60, { align: 'center' });
@@ -660,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const selectedItems = activeFilters[groupKey].map(key => groupDef.items[key]);
                 if (selectedItems.length > 0) {
                     doc.setFontSize(14);
-                    doc.setTextColor(20, 184, 166); // teal-500
+                    doc.setTextColor(213, 115, 115);
                     doc.text(groupDef.title, margin, yPos);
                     yPos += 20;
 
@@ -676,23 +851,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             addFooter(1);
 
-
-            // --- Page 2+: Checklist ---
             const canvas = await html2canvas(document.querySelector("#checklist-container"), {
                 scale: 2,
-                backgroundColor: '#111827', // bg-gray-900
+                backgroundColor: '#000000',
                 onclone: (clonedDoc) => {
-                    // CRITICAL FIX 1: Set text colors for visibility
-                    clonedDoc.querySelectorAll('h2, th').forEach(el => el.style.color = '#14B8A6'); // teal
-                    clonedDoc.querySelectorAll('td').forEach(el => el.style.color = '#E5E7EB'); // gray-200
-                    clonedDoc.querySelectorAll('a').forEach(el => el.style.color = '#2DD4BF'); // teal-400
+                    clonedDoc.querySelectorAll('h2, th').forEach(el => el.style.color = '#E58A8A');
+                    clonedDoc.querySelectorAll('td').forEach(el => el.style.color = '#E5E7EB');
+                    clonedDoc.querySelectorAll('a').forEach(el => el.style.color = '#E58A8A');
                     
-                    // CRITICAL FIX 2: Replace status pills with simple text
                     clonedDoc.querySelectorAll('.status-pill-button').forEach(pill => {
                         const isChecked = pill.classList.contains('checked');
                         const statusSpan = clonedDoc.createElement('span');
                         statusSpan.textContent = isChecked ? 'Checked' : 'Not Checked';
-                        statusSpan.style.color = isChecked ? '#22C55E' : '#9CA3AF'; // green-500 or gray-400
+                        statusSpan.style.color = isChecked ? '#D57373' : '#9CA3AF';
                         statusSpan.style.fontWeight = 'bold';
                         pill.parentNode.replaceChild(statusSpan, pill);
                     });
@@ -737,7 +908,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.type === 'checkbox') {
             updatePillAppearance(e.target);
             
-            // Special logic for Chaining -> Customer ID
             const isChaining = e.target.id === 'filter-conversions-Chaining';
             const customerIdCheckbox = document.getElementById('filter-datapoints-CustomerID');
 
@@ -752,7 +922,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     checklistBody.addEventListener('click', e => {
-        // Status Pill Toggle
         const statusPill = e.target.closest('.status-pill-button');
         if (statusPill) {
             statusPill.classList.toggle('checked');
@@ -761,7 +930,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(isSaveOnChangeOn) debouncedSave();
         }
         
-        // Category Check/Uncheck All
         const checkAllBtn = e.target.closest('.check-all-btn');
         if (checkAllBtn) {
             const category = checkAllBtn.dataset.category;
@@ -864,6 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFilters();
     renderChecklist();
     renderHistory();
+    setFlyoutState(true);
 });
 </script>
 

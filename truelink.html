@@ -114,31 +114,49 @@
         </div>
 
         <div class="link-group">
-            <h2>1. Standard Scheme</h2>
+            <h2>2. Standard Scheme</h2>
             <code class="code-snippet">eyewa://eyewa.com/home</code>
             <a href="eyewa://eyewa.com/home" class="test-link">Test Standard Scheme</a>
         </div>
 
         <div class="link-group">
-            <h2>2. Android Intent Scheme (No Fallback)</h2>
+            <h2>3. Android Intent Scheme (No Fallback)</h2>
             <code class="code-snippet">intent://eyewa.com/home#Intent;scheme=eyewa;end</code>
             <a href="intent://eyewa.com/home#Intent;scheme=eyewa;end" class="test-link">Test Intent Scheme w/ No Fallback</a>
         </div>
         
         <div class="link-group">
-            <h2>2. Android Intent Scheme (Fallback to Play Store)</h2>
+            <h2>4. Android Intent Scheme (Fallback to Play Store)</h2>
             <code class="code-snippet">intent://eyewa.com/home#Intent;scheme=eyewa;package=com.eyewa.app;end</code>
             <a href="intent://eyewa.com/home#Intent;scheme=eyewa;package=com.eyewa.app;end" class="test-link">Test Intent Scheme w/ Play Store Fallback</a>
         </div>
 
         <div class="link-group">
-            <h2>3. Android Intent Scheme (Fallback to Web URL)</h2>
+            <h2>5. Android Intent Scheme (Fallback to Web URL)</h2>
             <code class="code-snippet">intent://eyewa.com/home#Intent;scheme=eyewa;package=com.eyewa.app;S.browser_fallback_url=https://eyewa.com/home;end</code>
             <a href="intent://eyewa.com/home#Intent;scheme=eyewa;package=com.eyewa.app;S.browser_fallback_url=https://eyewa.com/home;end" class="test-link">Test Intent w/ Web Fallback</a>
         </div>
 
+                <div class="link-group">
+            <h2>6. CURRENT - Android Intent Scheme (No Fallback)</h2>
+            <code class="code-snippet">intent://eyewa.com/home#Intent;scheme=eyewa://;end</code>
+            <a href="intent://eyewa.com/home#Intent;scheme=eyewa://;end" class="test-link">Test Intent Scheme w/ No Fallback</a>
+        </div>
+        
         <div class="link-group">
-            <h2>4. App Links (HTTP/HTTPS)</h2>
+            <h2>7. CURRENT - Android Intent Scheme (Fallback to Play Store)</h2>
+            <code class="code-snippet">intent://eyewa.com/home#Intent;scheme=eyewa://;package=com.eyewa.app;end</code>
+            <a href="intent://eyewa.com/home#Intent;scheme=eyewa://;package=com.eyewa.app;end" class="test-link">Test Intent Scheme w/ Play Store Fallback</a>
+        </div>
+
+        <div class="link-group">
+            <h2>8. CURRENT - Android Intent Scheme (Fallback to Web URL)</h2>
+            <code class="code-snippet">intent://eyewa.com/home#Intent;scheme=eyewa://;package=com.eyewa.app;S.browser_fallback_url=https://eyewa.com/home;end</code>
+            <a href="intent://eyewa.com/home#Intent;scheme=eyewa://;package=com.eyewa.app;S.browser_fallback_url=https://eyewa.com/home;end" class="test-link">Test Intent w/ Web Fallback</a>
+        </div>
+
+        <div class="link-group">
+            <h2>9. App Links (HTTP/HTTPS)</h2>
             <code class="code-snippet">https://eyewa.com/home</code>
             <a href="https://eyewa.com/home" class="test-link">Test Standard App Link</a>
         </div>

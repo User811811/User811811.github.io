@@ -3,417 +3,482 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Impact IF...ELSE Macro Generator & Tester</title>
+<title>IF...ELSE Workspace</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-  }
-  .app-layout {
-    display: flex;
-    gap: 20px;
-    max-width: 1100px;
-    width: 100%;
-    align-items: flex-start;
-  }
-  .container {
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
-  .main-tool {
-    flex: 1 1 65%;
-  }
-  .sidebar {
-    flex: 1 1 35%;
-    position: sticky;
-    top: 20px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-    padding: 20px 25px;
-  }
-  
-  /* Make responsive */
-  @media (max-width: 850px) {
-    .app-layout {
-      flex-direction: column;
-    }
-    .sidebar {
-      position: static;
-      max-height: none;
-    }
+  /* --- CORE STYLES --- */
+  :root {
+    --system-blue: #007aff;
+    --system-orange: #ff9500;
+    --system-red: #ff3b30;
+    --system-green: #34c759;
+    --system-gray: #8e8e93;
+    
+    --glass-bg: rgba(255, 255, 255, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --text-primary: #1d1d1f;
+    --text-secondary: #515154;
+    
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono-stack: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   }
 
-  h2 { margin-top: 0; color: #333; }
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-stack);
+    background-color: #f5f5f7;
+    background-image: 
+      radial-gradient(at 10% 10%, rgba(179, 229, 252, 0.6) 0px, transparent 50%),
+      radial-gradient(at 90% 90%, rgba(255, 149, 0, 0.15) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(0, 122, 255, 0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; 
+  }
+
+  /* --- APP LAYOUT & SHIFT ANIMATION --- */
+  .app-layout {
+    display: flex;
+    justify-content: center;
+    max-width: 900px;
+    width: 100%;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  }
+  
+  /* Shift left when lexicon opens */
+  @media (min-width: 1200px) {
+    .app-layout.shifted { transform: translateX(-200px); }
+  }
+  @media (max-width: 1199px) and (min-width: 950px) {
+    .app-layout.shifted { transform: translateX(-100px); }
+  }
+
+  /* --- MAIN CONTAINER --- */
+  .container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    padding: 35px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12); 
+    width: 100%;
+  }
+
+  h2 { margin-top: 0; color: var(--text-primary); font-weight: 700; font-size: 1.8em; letter-spacing: -0.5px;}
   h3 {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 2px solid #eee;
-    color: #0056b3;
-  }
-  .sidebar h3 {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-    margin-bottom: 5px;
-  }
-  .sidebar-sub {
-    font-size: 0.85em;
-    color: #666;
-    margin-bottom: 20px;
+    margin-top: 40px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    color: var(--system-blue);
+    font-weight: 600;
   }
 
   label {
     display: block;
-    margin-top: 15px;
+    margin-top: 18px;
     font-size: 0.9em;
-    font-weight: bold;
-    color: #555;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
   }
+
+  /* --- APPLE STYLE INPUTS --- */
   input[type="text"], select {
     width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
     box-sizing: border-box;
-    font-family: monospace;
+    font-family: var(--mono-stack);
+    font-size: 0.95em;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
   }
+  input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--system-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+    background-color: #fff;
+  }
+  
   select {
-    font-family: inherit;
+    font-family: var(--font-stack);
     background-color: #fff;
     cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
   }
   
-  /* Use Case Highlight */
   #modeSelector {
-    border: 2px solid #0056b3;
-    font-weight: bold;
-    color: #0056b3;
+    border: 2px solid var(--system-blue);
+    font-weight: 600;
+    color: var(--system-blue);
     margin-bottom: 10px;
+    background-color: #fff;
   }
 
-  .row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  .row > select { flex: 0 0 auto; width: auto; }
+  .row { display: flex; gap: 12px; align-items: center; }
+  .row > select { flex: 0 0 auto; width: auto; font-size: 0.9em;}
   .row > input { flex: 1 1 auto; }
   
-  .input-group {
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    padding: 15px;
-    margin-top: 10px;
-    border-left: 4px solid #0056b3;
-  }
-  .tester-group {
-    background: #eef1f5;
-    border: 1px solid #d1d8e0;
-    padding: 15px;
-    margin-top: 10px;
-    border-left: 4px solid #f39c12;
-  }
-  
-  button {
+  /* --- INNER CARD SECTIONS --- */
+  .macro-builder-group {
+    background: rgba(0, 122, 255, 0.03);
+    border: 1px solid rgba(0,0,0,0.04);
+    padding: 25px;
+    border-radius: 16px;
+    border-left: 4px solid var(--system-blue);
     margin-top: 20px;
-    padding: 12px 20px;
-    background: #0056b3;
+  }
+
+  .tester-group {
+    background: rgba(255, 149, 0, 0.03);
+    border: 1px solid rgba(0,0,0,0.04);
+    padding: 25px;
+    border-radius: 16px;
+    border-left: 4px solid var(--system-orange);
+    margin-top: 15px;
+  }
+
+  .input-group {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 18px 20px 22px;
+    margin-top: 15px;
+    border-radius: 12px;
+    border-left: 3px solid var(--system-blue);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+  .input-group label { margin-top: 0; }
+  .input-group > label:not(:first-child) { margin-top: 15px; }
+
+  .flex-between { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5px;}
+  .actions-row { display: flex; gap: 8px; align-items: center; }
+  
+  /* --- APPLE STYLE BUTTONS --- */
+  .generate-btn {
+    margin-top: 25px;
+    padding: 16px 24px;
+    background-color: var(--system-blue);
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 1em;
+    border-radius: 12px;
+    font-size: 1.05em;
+    font-weight: 600;
     cursor: pointer;
     width: 100%;
-    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
   }
-  button:hover { background: #004494; }
-  button.test-btn { background: #f39c12; color: #fff; }
-  button.test-btn:hover { background: #d68910; }
+  .generate-btn:hover { background-color: #0066d6; box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3); transform: translateY(-1px); }
+  .generate-btn:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3); }
+
+  button.test-btn { 
+    background-color: var(--system-orange); color: #fff; border: none; padding: 14px 24px; border-radius: 12px; width: 100%; font-size: 1.05em; font-weight: 600; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 12px rgba(255, 149, 0, 0.2); transition: all 0.2s ease;
+  }
+  button.test-btn:hover { background-color: #e68600; box-shadow: 0 6px 16px rgba(255, 149, 0, 0.3); transform: translateY(-1px); }
+  button.test-btn:active { box-shadow: 0 2px 6px rgba(255, 149, 0, 0.3); transform: translateY(1px); }
+
+  button.add-btn {
+    background-color: transparent; color: var(--system-blue); border: 2px dashed rgba(0, 122, 255, 0.4); padding: 12px 24px; border-radius: 12px; width: 100%; font-size: 0.95em; font-weight: 600; cursor: pointer; margin-top: 15px; transition: all 0.2s ease;
+  }
+  button.add-btn:hover { background-color: rgba(0, 122, 255, 0.05); border-color: var(--system-blue); }
+
+  button.remove-btn {
+    background: rgba(255, 59, 48, 0.1); color: var(--system-red); border: none; padding: 5px 12px; border-radius: 8px; font-size: 0.85em; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  button.remove-btn:hover { background: rgba(255, 59, 48, 0.2); }
+
+  /* MACRO TRIGGER BUTTON */
+  button.macro-trigger {
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--system-blue);
+    border: none;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.8em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--mono-stack);
+  }
+  button.macro-trigger:hover {
+    background: var(--system-blue);
+    color: white;
+  }
   
+  /* Output textareas */
   textarea {
     width: 100%;
-    height: 100px;
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    height: 120px;
+    margin-top: 8px;
+    padding: 15px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
     box-sizing: border-box;
-    font-family: monospace;
+    font-family: var(--mono-stack);
     font-size: 0.9em;
     resize: vertical;
-    background-color: #eef1f5;
+    background-color: rgba(255,255,255,0.8);
+    color: var(--text-primary);
   }
+  textarea:focus { outline: none; border-color: var(--system-blue); background-color: #fff;}
+
   .test-result-box {
-    margin-top: 15px;
-    padding: 10px;
+    margin-top: 8px;
+    padding: 15px;
     background: #fff;
-    border: 1px dashed #ccc;
-    border-radius: 4px;
-    font-family: monospace;
-    word-break: break-all;
-    min-height: 20px;
-  }
-  .match-indicator {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: inline-block;
-  }
-  
-  /* Tooltip Styles */
-  .tooltip {
-    position: relative;
-    display: inline-block;
-    cursor: help;
-    color: #0056b3;
-    margin-left: 5px;
-    font-weight: bold;
-    background: #eef1f5;
-    border-radius: 50%;
-    width: 18px;
-    text-align: center;
-    line-height: 18px;
-    font-size: 0.8em;
-  }
-  .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 280px;
-    background-color: #333;
-    color: #fff;
-    text-align: left;
-    border-radius: 6px;
-    padding: 12px;
-    position: absolute;
-    z-index: 10;
-    bottom: 135%;
-    left: 50%;
-    margin-left: -140px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-weight: normal;
-    font-size: 0.9em;
-    box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
-    line-height: 1.4;
-  }
-  .tooltip .tooltiptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
-  }
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  /* Toast Notification */
-  .toast {
-    visibility: hidden;
-    min-width: 250px;
-    background-color: #d9534f;
-    color: #fff;
-    text-align: center;
-    border-radius: 4px;
-    padding: 12px;
-    position: fixed;
-    z-index: 1000;
-    left: 50%;
-    top: 10px;
-    transform: translateX(-50%);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    font-family: var(--mono-stack);
     font-size: 0.95em;
-    font-weight: bold;
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-    opacity: 0;
-    transition: opacity 0.3s, top 0.3s;
+    word-break: break-all;
+    min-height: 25px;
   }
-  .toast.show {
-    visibility: visible;
-    opacity: 1;
-    top: 30px;
-  }
+  .match-indicator { font-weight: 600; margin-bottom: 8px; display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.85em; }
+  
+  /* --- TOOLTIP STYLE --- */
+  .tooltip { position: relative; display: inline-block; cursor: help; color: var(--system-blue); margin-left: 6px; font-weight: 700; background: rgba(0, 122, 255, 0.1); border-radius: 50%; width: 18px; text-align: center; line-height: 18px; font-size: 0.85em; }
+  .tooltip .tooltiptext { visibility: hidden; width: 300px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; text-align: left; border-radius: 12px; padding: 15px; position: absolute; z-index: 100; bottom: 150%; left: 50%; margin-left: -150px; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; font-weight: 400; font-size: 0.95em; box-shadow: 0 8px 20px rgba(0,0,0,0.3); line-height: 1.5; transform: translateY(10px); }
+  .tooltip .tooltiptext::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent; }
+  .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; transform: translateY(0px); }
 
-  /* Sidebar Macro List Styles */
-  .macro-list {
+  /* --- TOAST NOTIFICATION --- */
+  .toast { visibility: hidden; min-width: 280px; background-color: var(--system-red); color: #fff; text-align: center; border-radius: 12px; padding: 15px; position: fixed; z-index: 2000; left: 50%; top: -50px; transform: translateX(-50%); font-size: 0.95em; font-weight: 600; box-shadow: 0 10px 25px rgba(255, 59, 48, 0.3); opacity: 0; transition: opacity 0.3s, top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .toast.show { visibility: visible; opacity: 1; top: 30px; }
+
+  /* --- FLYOUT LEXICON (THE MAGIC) --- */
+  .flyout-lexicon {
+    position: fixed;
+    top: 0;
+    right: -420px; 
+    width: 400px;
+    height: 100vh;
+    z-index: 1500;
+    background: var(--glass-bg);
+    backdrop-filter: blur(35px) saturate(200%);
+    -webkit-backdrop-filter: blur(35px) saturate(200%);
+    border-left: 1px solid var(--glass-border);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1); 
+    padding: 30px 25px;
+    overflow-y: auto;
+    border-radius: 20px 0 0 20px;
+  }
+  .flyout-lexicon.open { right: 0; }
+  
+  .lexicon-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .lexicon-header h3 { margin: 0; padding: 0; border: none; color: var(--text-primary); }
+  
+  .close-lexicon {
+    background: rgba(0,0,0,0.05);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    color: var(--text-secondary);
+    transition: all 0.2s;
   }
-  .macro-item {
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 12px;
-  }
-  .macro-item:last-child {
-    border-bottom: none;
-  }
-  .macro-tag-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
+  .close-lexicon:hover { background: rgba(255,59,48,0.1); color: var(--system-red); }
+
+  .macro-list { display: flex; flex-direction: column; gap: 15px; margin-top: 15px;}
+  .macro-item { border-bottom: 1px solid rgba(0,0,0,0.03); padding-bottom: 15px; }
+  .macro-item:last-child { border-bottom: none; }
+  .macro-tag-container { display: flex; flex-wrap: wrap; gap: 6px; }
+  
   .macro-tag {
     display: inline-block;
-    background: #eef1f5;
-    border: 1px dashed #0056b3;
-    color: #0056b3;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 0.9em;
-    cursor: grab;
-    transition: all 0.2s;
-    user-select: none;
-  }
-  .macro-tag:hover {
-    background: #dce4ee;
-  }
-  .macro-tag:active {
-    cursor: grabbing;
-  }
-  .macro-desc {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: var(--system-blue);
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-family: var(--mono-stack);
     font-size: 0.85em;
-    color: #666;
-    margin-top: 6px;
-    line-height: 1.4;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
   }
+  .macro-tag:hover { background: #fff; border-color: var(--system-blue); transform: scale(1.03); box-shadow: 0 3px 8px rgba(0, 122, 255, 0.15); }
+  .macro-tag:active { transform: scale(0.96); }
+  .macro-desc { font-size: 0.85em; color: var(--text-secondary); margin-top: 8px; line-height: 1.5; }
 
+  .flyout-lexicon::-webkit-scrollbar { width: 6px; }
+  .flyout-lexicon::-webkit-scrollbar-track { background: transparent; }
+  .flyout-lexicon::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+  .flyout-lexicon::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 </style>
 </head>
 <body>
 
-<div id="toast" class="toast">Whitespace is not allowed here! Spaces have been removed.</div>
+<div id="toast" class="toast">Whitespace removed. Spaces are not allowed in this field.</div>
 
-<div class="app-layout">
+<div class="app-layout" id="mainLayout">
   
-  <div class="container main-tool">
-    <h2>Impact IF...ELSE Macro Generator</h2>
-    <p>Generate nested IF/ELSE logic for your Impact tracking setups. <strong>Whitespace is strictly disabled.</strong></p>
+  <div class="container">
+    <h2>IF...ELSE Workspace</h2>
+    <p style="color: var(--text-secondary); font-size: 0.95em; margin-bottom: 25px;">Build IF...ELSE logic for Impact's 3rd Party Gateway & Program Tracking Template. Spacing is prohibted.</p>
 
-    <label for="modeSelector">Select Use Case</label>
+    <label for="modeSelector" style="margin-top: 0;">Use Case</label>
     <select id="modeSelector" onchange="toggleMode()">
-      <option value="gateway">3rd Party Gateway (Base + Logic + Append)</option>
+      <option value="gateway">3rd Party Gateway Link (3PG Link + Logic + Link Suffix)</option>
       <option value="template">Program Tracking Template (Logic Only)</option>
     </select>
 
     <div id="baseLinkGroup">
-      <label for="baseLink">Base Tracking Link (Prepended)</label>
-      <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
+      <label for="baseLink">3PG Tracking URL</label>
+      <input type="text" id="baseLink" value="" oninput="sanitizeInput(this)" onfocus="closeLexicon()" onclick="closeLexicon()" placeholder="ad.doubleclick.net/ddm/clk/">
     </div>
 
-    <label for="evalVariable">Macro Variable to Evaluate</label>
-    <select id="evalVariable">
-      </select>
-
-    <div class="input-group">
-      <label>
-        Condition 1 Keyword Match & Input
-        <div class="tooltip">?
-          <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
-        </div>
-      </label>
-      <div class="row">
-        <select id="cond1Match">
-          <option value="contains">Contains</option>
-          <option value="exact">Exact Match</option>
+    <div class="macro-builder-group">
+      <label for="evalVariable" style="margin-top: 0;">Impact Macro to Evaluate</label>
+      <select id="evalVariable">
         </select>
-        <input type="text" id="cond1Key" value="CreditLimit" oninput="sanitizeInput(this)" placeholder="Keyword">
-      </div>
-      
-      <label for="cond1Out">Condition 1 Output Link</label>
-      <input type="text" id="cond1Out" value="SHqv?aff_sub5=AFFIMPACTFI" oninput="sanitizeInput(this)">
-    </div>
 
-    <div class="input-group">
-      <label>
-        Condition 2 Keyword Match & Input
-        <div class="tooltip">?
-          <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
+      <div id="conditionsContainer">
+        <div class="input-group condition-block">
+          <div class="flex-between">
+            <div>
+              <label class="cond-title" style="display:inline-block; margin:0;">Condition 1 <br><br>Keyword to Match</label>
+              <div class="tooltip">?
+                <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed. "Credit Limit" should be input as "Credit%20Limit" (%20 is the URL-encoded representation of a space character).</span>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 6px;">
+            <select class="cond-match">
+              <option value="contains">Contains</option>
+              <option value="exact">Exact Match</option>
+            </select>
+            <input type="text" id="cond1Key" class="cond-key" value="" oninput="sanitizeInput(this)" onfocus="closeLexicon()" onclick="closeLexicon()" placeholder="Keyword, e.g. Credit%20Limit">
+          </div>
+          
+          <div class="flex-between" style="margin-top: 15px;">
+            <label class="cond-out-title" style="margin:0;">Result URL</label>
+            <button type="button" class="macro-trigger" onclick="openLexicon('cond1Out')">{ } Macros</button>
+          </div>
+          <input type="text" id="cond1Out" class="cond-out" value= "" placeholder="SHqv?aff_sub5=AFFIMPACTFI" oninput="sanitizeInput(this)">
         </div>
-      </label>
-      <div class="row">
-        <select id="cond2Match">
-          <option value="contains">Contains</option>
-          <option value="exact">Exact Match</option>
-        </select>
-        <input type="text" id="cond2Key" value="NewCard" oninput="sanitizeInput(this)" placeholder="Keyword">
+
+        <div class="input-group condition-block">
+          <div class="flex-between">
+            <div>
+              <label class="cond-title" style="display:inline-block; margin:0;">Condition 2 <br><br>Keyword to Match</label>
+              <div class="tooltip">?
+                <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed. "Credit Limit" should be input as "Credit%20Limit" (%20 is the URL-encoded representation of a space character).</span>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 6px;">
+            <select class="cond-match">
+              <option value="contains">Contains</option>
+              <option value="exact">Exact Match</option>
+            </select>
+            <input type="text" id="cond2Key" class="cond-key" value="" oninput="sanitizeInput(this)" onfocus="closeLexicon()" onclick="closeLexicon()" placeholder="Keyword, e.g. New%20Card">
+          </div>
+          
+          <div class="flex-between" style="margin-top: 15px;">
+            <label class="cond-out-title" style="margin:0;">Result URL</label>
+            <button type="button" class="macro-trigger" onclick="openLexicon('cond2Out')">{ } Macros</button>
+          </div>
+          <input type="text" id="cond2Out" class="cond-out" value="" placeholder="SHqw?aff_sub5=AFFIMPACTFICC" oninput="sanitizeInput(this)">
+        </div>
       </div>
-      
-      <label for="cond2Out">Condition 2 Output Link</label>
-      <input type="text" id="cond2Out" value="SHqw?aff_sub5=AFFIMPACTFICC" oninput="sanitizeInput(this)">
+
+      <button type="button" class="add-btn" onclick="addCondition()">+ Add another condition</button>
+
+      <div class="input-group" style="border-left-color: var(--system-gray);">
+        <div class="flex-between">
+          <label for="fallbackOut" style="margin-top: 0;">Fallback Result URL</label>
+          <button type="button" class="macro-trigger" onclick="openLexicon('fallbackOut')">{ } Macros</button>
+        </div>
+        <input type="text" id="fallbackOut" value="" placeholder="{gwlurl:plain}" oninput="sanitizeInput(this)">
+      </div>
+
+      <div id="appendedLinkGroup" class="input-group" style="border-left-color: var(--system-green);">
+        <div class="flex-between">
+          <label for="appendedLink" style="margin-top: 0;">URL (Appended)</label>
+          <button type="button" class="macro-trigger" onclick="openLexicon('appendedLink')">{ } Macros</button>
+        </div>
+        <input type="text" id="appendedLink" value="" placeholder="&subid={clickid}&id={irpid}" oninput="sanitizeInput(this)">
+      </div>
+
+      <button class="generate-btn" onclick="generateLink()">Generate</button>
+
+      <label id="resultLabel" label for="result" style="margin-top: 20px;">3rd Party Gateway:</label>
+      <textarea id="result" readonly placeholder="Resulting macro string..."></textarea>
     </div>
 
-    <div class="input-group" style="border-left-color: #d9534f;">
-      <label for="fallbackOut">Fallback Link (If neither matches)</label>
-      <input type="text" id="fallbackOut" value="554686360;363508829;w?{gwlurl:plain}" oninput="sanitizeInput(this)">
-    </div>
-
-    <div id="appendedLinkGroup" class="input-group" style="border-left-color: #5cb85c;">
-      <label for="appendedLink">Appended Tracking Link (Suffix)</label>
-      <input type="text" id="appendedLink" value="&extra_param=123" oninput="sanitizeInput(this)">
-    </div>
-
-    <button onclick="generateLink()">1. Generate Link String</button>
-
-    <label for="result">Generated Macro Output:</label>
-    <textarea id="result" readonly placeholder="Your generated link will appear here..."></textarea>
-
-    <h3>Macro Logic Tester</h3>
-    <p style="font-size: 0.9em; color: #555;">Test a sample value to see which link the macro will output. <em>(Spaces are allowed in this test field to simulate real incoming parameters).</em></p>
+    <h3 style="border-top: none;">Logic Tester</h3>
+    <p style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 15px;">Input an example variable value to view how Impact will resolve the URL.</p>
     
     <div class="tester-group">
-      <label id="testInputLabel" for="testAdName" style="margin-top: 0;">Simulated Value (iradname)</label>
-      <input type="text" id="testAdName" placeholder="e.g., SummerPromo_CreditLimit_2024">
+      <label id="testInputLabel" for="testAdName" style="margin-top: 0;">Variable Value (iradname)</label>
+      <input type="text" id="testAdName" placeholder="e.g., banking New Year New Money Campaign" style="font-family: var(--font-stack); background-color: #fff;" onfocus="closeLexicon()">
       
-      <button class="test-btn" onclick="testLogic()">2. Test Logic</button>
+      <button class="test-btn" onclick="testLogic()">Test</button>
       
-      <label>Simulated Resolved URL:</label>
+      <label style="margin-top: 20px;">Condition Chosen:</label>
       <div id="testResultBox" class="test-result-box">
-        <span style="color:#999;">Run the test to see the result...</span>
+        <span style="color:var(--text-secondary);">Run test to view chosen condition...</span>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="container sidebar">
-    <h3>Impact Macros</h3>
-    <div class="sidebar-sub">Click to copy or Drag & Drop directly into an input field.</div>
-    
-    <div class="macro-list" id="macroList">
-      </div>
+<div id="lexiconSidebar" class="flyout-lexicon">
+  <div class="lexicon-header">
+    <h3>Macro Lexicon</h3>
+    <button class="close-lexicon" onclick="closeLexicon()">✕</button>
   </div>
-
+  <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 0;">Click a macro to insert it directly into your selected field.</p>
+  
+  <div class="macro-list" id="macroList">
+    </div>
 </div>
 
 <script>
   // --- IMPACT MACROS DICTIONARY ---
   const impactMacros = [
-    { name: "{clickid}", desc: "Unique click ID the system assigns to the click event." },
+    { name: "{clickid}", desc: "Unique click ID assigned to the click event." },
     { name: "{iradid}", desc: "Referring ad ID." },
     { name: "{ircid}", desc: "Referring program ID." },
     { name: "{irpid}", desc: "Referring partner ID." },
     { name: "{iradname}", desc: "Referring ad name." },
     { name: "{iradtype}", desc: "Ad type (e.g., banner, text, image)." },
     { name: "{iradsize}", desc: "Ad size." },
-    { name: "{prodsku}", desc: "SKU assigned to the product associated with the ad." },
+    { name: "{prodsku}", desc: "SKU of the product associated with the ad." },
     { name: "{irmpname}", desc: "Name of the partner in impact.com." },
-    { name: "{irmptype}", desc: "Mediatype will return either 'mediapartner' or 'mediasource' depending where the click originated from." },
-    { name: "{sharedid}", desc: "ID that partners can append as a query string parameter to their own tracking links, which is then visible to you in reporting." },
-    { names: ["{mp_value1}", "{mp_value2}", "{mp_value3}"], desc: "Partner custom values you can assign to a partner. Note: These values are applied across your entire account, not just for a single Program/Campaign." },
-    { name: "{timestamp}", desc: "UNIX timestamp generated when the click event occurred." },
-    { name: "{randint}", desc: "Random integer generated between 0–9,999,999 when a tracking link is clicked." },
-    { name: "{impacttest}", desc: "Test parameter appended when you test your tracking links." },
-    { name: "{irmpgroupname}", desc: "Group name that lists one or multiple groups that a partner belongs to within a query string." },
-    { name: "{referringdomain}", desc: "Domain where the user originated from." },
-    { name: "{country}", desc: "Visitor country code based on IP geolocation (e.g., US, CA, GB)." },
-    { names: ["{gwlurl}", "{gwlurl:plain}"], desc: "Gateway landing page URL to which all visitors will be redirected to ensure accurate tracking. To ensure that it is never encoded, you can make use of the :plain variant." }
+    { name: "{irmptype}", desc: "'mediapartner' or 'mediasource' depending on click origin." },
+    { name: "{sharedid}", desc: "Partner-defined ID via query string parameter." },
+    { names: ["{mp_value1}", "{mp_value2}", "{mp_value3}"], desc: "Partner custom values (applied account-wide)." },
+    { name: "{timestamp}", desc: "UNIX timestamp of the click event." },
+    { name: "{randint}", desc: "Random integer between 0–9,999,999." },
+    { name: "{impacttest}", desc: "Test parameter appended during tracking tests." },
+    { name: "{irmpgroupname}", desc: "Group name(s) the partner belongs to." },
+    { name: "{referringdomain}", desc: "Domain where the user originated." },
+    { name: "{country}", desc: "Visitor country code via IP geolocation (e.g., US, CA)." },
+    { names: ["{gwlurl}", "{gwlurl:plain}"], desc: "Gateway landing page URL. Use :plain to prevent encoding." }
   ];
 
   // DOM Elements
@@ -421,7 +486,10 @@
   const evalVarSelect = document.getElementById('evalVariable');
   const testInputLabel = document.getElementById('testInputLabel');
   
-  // Render macros into the sidebar & populate dropdown
+  // Track active input for Lexicon insertion
+  let activeInputField = null;
+
+  // Render macros into the flyout & populate dropdown
   impactMacros.forEach(item => {
     const itemDiv = document.createElement('div');
     itemDiv.className = 'macro-item';
@@ -429,49 +497,56 @@
     const tagContainer = document.createElement('div');
     tagContainer.className = 'macro-tag-container';
     
-    // Handle either single 'name' or array of 'names'
     const tags = item.names || [item.name];
     
     tags.forEach(tagText => {
-      // Setup Sidebar Pills
+      // Setup Flyout Pills
       const tagSpan = document.createElement('span');
       tagSpan.className = 'macro-tag';
-      tagSpan.draggable = true;
       tagSpan.innerText = tagText;
       
-      tagSpan.ondragstart = (e) => {
-        e.dataTransfer.setData('text/plain', tagText);
-        e.dataTransfer.effectAllowed = 'copy';
-      };
-      
+      // Smart Insert on Click
       tagSpan.onclick = () => {
-        navigator.clipboard.writeText(tagText).then(() => {
+        if (activeInputField) {
+          const start = activeInputField.selectionStart;
+          const end = activeInputField.selectionEnd;
+          const text = activeInputField.value;
+          
+          activeInputField.value = text.substring(0, start) + tagText + text.substring(end);
+          
+          activeInputField.selectionStart = activeInputField.selectionEnd = start + tagText.length;
+          
+          activeInputField.focus();
+          sanitizeInput(activeInputField);
+          generateLink();
+
           const originalText = tagSpan.innerText;
-          tagSpan.innerText = 'Copied!';
-          tagSpan.style.backgroundColor = '#d4edda';
-          tagSpan.style.borderColor = '#28a745';
-          tagSpan.style.color = '#155724';
+          tagSpan.innerText = 'Inserted!';
+          tagSpan.style.backgroundColor = 'var(--system-blue)';
+          tagSpan.style.borderColor = 'var(--system-blue)';
+          tagSpan.style.color = '#fff';
           
           setTimeout(() => {
             tagSpan.innerText = originalText;
             tagSpan.style.backgroundColor = '';
             tagSpan.style.borderColor = '';
             tagSpan.style.color = '';
-          }, 1200);
-        });
+          }, 1000);
+        } else {
+          navigator.clipboard.writeText(tagText);
+          tagSpan.innerText = 'Copied';
+          setTimeout(() => { tagSpan.innerText = tagText; }, 1000);
+        }
       };
       
       tagContainer.appendChild(tagSpan);
 
       // Setup Evaluation Variable Dropdown
-      const cleanName = tagText.replace(/[{}]/g, ''); // Remove curly braces
       const option = document.createElement('option');
-      option.value = cleanName;
+      option.value = tagText.replace(/[{}]/g, ''); 
       option.innerText = tagText;
       
-      if (cleanName === 'iradname') {
-        option.selected = true; // Default to iradname
-      }
+      if (option.value === 'iradname') option.selected = true;
       evalVarSelect.appendChild(option);
     });
     
@@ -484,29 +559,68 @@
     macroListContainer.appendChild(itemDiv);
   });
 
-  // Update Tester Label dynamically when user changes the Evaluation Variable
+  // Update Tester Label dynamically
   evalVarSelect.addEventListener('change', function() {
     testInputLabel.innerText = `Simulated Value (${this.value})`;
   });
 
-  // --- LOGIC GENERATOR & TESTER ---
+  // --- FLYOUT LOGIC & ANIMATIONS (SMART TOGGLE ADDED) ---
+  function openLexicon(inputId) {
+    const sidebar = document.getElementById('lexiconSidebar');
+    const targetInput = document.getElementById(inputId);
+
+    // If already open and we clicked the exact same trigger, act as a toggle and close it
+    if (sidebar.classList.contains('open') && activeInputField === targetInput) {
+      closeLexicon();
+      return;
+    }
+
+    // Otherwise open it / switch active input focus
+    activeInputField = targetInput;
+    sidebar.classList.add('open');
+    document.getElementById('mainLayout').classList.add('shifted');
+    
+    if(activeInputField) activeInputField.focus();
+  }
+
+  function closeLexicon() {
+    document.getElementById('lexiconSidebar').classList.remove('open');
+    document.getElementById('mainLayout').classList.remove('shifted');
+    activeInputField = null;
+  }
+
+  // Auto-close Lexicon if user clicks/tabs to an input NOT associated with the active Lexicon
+  document.addEventListener('focusin', (e) => {
+    const sidebar = document.getElementById('lexiconSidebar');
+    if (sidebar.classList.contains('open')) {
+      const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA';
+      const isOutsideSidebar = !sidebar.contains(e.target);
+      
+      if (isInput && isOutsideSidebar && e.target !== activeInputField) {
+        closeLexicon();
+      }
+    }
+  });
+
+
+  // --- APP LOGIC ---
   let toastTimeout;
 
-  // Toggle Visibility for Gateway vs Template modes
   function toggleMode() {
     const mode = document.getElementById('modeSelector').value;
     const baseGroup = document.getElementById('baseLinkGroup');
     const appGroup = document.getElementById('appendedLinkGroup');
+    const resultLabel = document.getElementById('resultLabel');
     
     if (mode === 'template') {
       baseGroup.style.display = 'none';
       appGroup.style.display = 'none';
+      resultLabel.innerText = 'Program Tracking Template Value:';
     } else {
       baseGroup.style.display = 'block';
       appGroup.style.display = 'block';
+      resultLabel.innerText = '3rd Party Gateway Link:';
     }
-    
-    // Auto-update output strings whenever mode shifts
     generateLink();
   }
 
@@ -524,10 +638,66 @@
     toastTimeout = setTimeout(() => { toast.classList.remove("show"); }, 3000);
   }
 
+  // --- DYNAMIC CONDITIONS ---
+  function addCondition() {
+    const container = document.getElementById('conditionsContainer');
+    const count = container.querySelectorAll('.condition-block').length + 1;
+    
+    const keyId = 'condKey' + count;
+    const outId = 'condOut' + count;
+
+    const div = document.createElement('div');
+    div.className = 'input-group condition-block';
+    div.innerHTML = `
+      <div class="flex-between">
+        <div>
+          <label class="cond-title" style="display:inline-block; margin:0;">Condition ${count} <br><br>Keyword to Match</label>
+          <div class="tooltip">?
+            <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed. "Credit Limit" should be input as "Credit%20Limit" (%20 is the URL-encoded representation of a space character).</span>
+          </div>
+        </div>
+        <div class="actions-row">
+          <button type="button" class="remove-btn" onclick="removeCondition(this)">Remove</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top: 6px;">
+        <select class="cond-match">
+          <option value="contains">Contains</option>
+          <option value="exact">Exact Match</option>
+        </select>
+        <input type="text" id="${keyId}" class="cond-key" value="" oninput="sanitizeInput(this)" onfocus="closeLexicon()" onclick="closeLexicon()" placeholder="Keyword">
+      </div>
+      
+      <div class="flex-between" style="margin-top: 15px;">
+        <label class="cond-out-title" style="margin:0;">Result URL</label>
+        <button type="button" class="macro-trigger" onclick="openLexicon('${outId}')">{ } Macros</button>
+      </div>
+      <input type="text" id="${outId}" class="cond-out" value="" oninput="sanitizeInput(this)" placeholder="Result URL">
+    `;
+    container.appendChild(div);
+  }
+
+  function removeCondition(btn) {
+    btn.closest('.condition-block').remove();
+    reindexConditions();
+    generateLink(); 
+  }
+
+  function reindexConditions() {
+    const blocks = document.querySelectorAll('.condition-block');
+    blocks.forEach((block, idx) => {
+      const num = idx + 1;
+      block.querySelector('.cond-title').textContent = `Condition ${num}: Keyword & Match`;
+      block.querySelector('.cond-out-title').textContent = `Condition ${num}: Result String`;
+    });
+  }
+
   function getRegexString(matchType, rawKeyword) {
+    if(!rawKeyword) return ".*"; 
     return matchType === 'contains' ? `.*${rawKeyword}.*` : `^${rawKeyword}$`;
   }
 
+  // Recursive String Generator
   function generateLink() {
     const mode = document.getElementById('modeSelector').value;
     const base = mode === 'gateway' ? document.getElementById('baseLink').value : '';
@@ -535,30 +705,36 @@
     
     const evalVar = document.getElementById('evalVariable').value;
     const fb = document.getElementById('fallbackOut').value;
+    const blocks = document.querySelectorAll('.condition-block');
 
-    const c1Match = document.getElementById('cond1Match').value;
-    const c1kRaw = document.getElementById('cond1Key').value;
-    const c1k = getRegexString(c1Match, c1kRaw);
-    const c1o = document.getElementById('cond1Out').value;
-
-    const c2Match = document.getElementById('cond2Match').value;
-    const c2kRaw = document.getElementById('cond2Key').value;
-    const c2k = getRegexString(c2Match, c2kRaw);
-    const c2o = document.getElementById('cond2Out').value;
-
-    // Build logic with dynamic variable mapping and dynamic base/append based on mode
-    let outputString = `${base}{if(${evalVar}~"${c1k}","${c1o}","{if(${evalVar}~"${c2k}","${c2o}","${fb}")}")}${app}`;
-    outputString = outputString.replace(/\s+/g, '');
+    let currentLogicString = fb;
     
-    document.getElementById('result').value = outputString;
+    for (let i = blocks.length - 1; i >= 0; i--) {
+      const matchType = blocks[i].querySelector('.cond-match').value;
+      const rawKey = blocks[i].querySelector('.cond-key').value;
+      const outVal = blocks[i].querySelector('.cond-out').value;
+      const regexStr = getRegexString(matchType, rawKey);
+
+      if (i === 0) {
+        currentLogicString = `{if(${evalVar}~"${regexStr}","${outVal}","${currentLogicString}")}`;
+      } else {
+        currentLogicString = `"{if(${evalVar}~"${regexStr}","${outVal}","${currentLogicString}")}"`;
+      }
+    }
+
+    let finalOutput = base + currentLogicString + app;
+    finalOutput = finalOutput.replace(/\s+/g, '');
+    
+    document.getElementById('result').value = finalOutput;
   }
 
+  // Dynamic Array Tester
   function testLogic() {
     const testName = document.getElementById('testAdName').value;
     const resultBox = document.getElementById('testResultBox');
     
     if(!testName) {
-      resultBox.innerHTML = '<span style="color:#d9534f;">Please enter a test value.</span>';
+      resultBox.innerHTML = '<span style="color:var(--system-red); font-weight:600;">Please enter a test value.</span>';
       return;
     }
 
@@ -566,45 +742,43 @@
     const base = mode === 'gateway' ? document.getElementById('baseLink').value : '';
     const app = mode === 'gateway' ? document.getElementById('appendedLink').value : '';
     const fb = document.getElementById('fallbackOut').value;
-
-    const c1Match = document.getElementById('cond1Match').value;
-    const c1kRaw = document.getElementById('cond1Key').value;
-    const c1o = document.getElementById('cond1Out').value;
-
-    const c2Match = document.getElementById('cond2Match').value;
-    const c2kRaw = document.getElementById('cond2Key').value;
-    const c2o = document.getElementById('cond2Out').value;
-
-    const regex1 = new RegExp(getRegexString(c1Match, c1kRaw));
-    const regex2 = new RegExp(getRegexString(c2Match, c2kRaw));
+    const blocks = document.querySelectorAll('.condition-block');
 
     let resolvedLink = "";
     let matchText = "";
-    let matchColor = "";
+    let indicatorBg = "";
+    let isMatched = false;
 
-    if (regex1.test(testName)) {
-      resolvedLink = base + c1o + app;
-      matchText = "Matched Condition 1";
-      matchColor = "#0056b3";
-    } else if (regex2.test(testName)) {
-      resolvedLink = base + c2o + app;
-      matchText = "Matched Condition 2";
-      matchColor = "#0056b3";
-    } else {
+    for (let i = 0; i < blocks.length; i++) {
+      const matchType = blocks[i].querySelector('.cond-match').value;
+      const rawKey = blocks[i].querySelector('.cond-key').value;
+      const outVal = blocks[i].querySelector('.cond-out').value;
+      const regex = new RegExp(getRegexString(matchType, rawKey));
+
+      if (regex.test(testName)) {
+        resolvedLink = base + outVal + app;
+        matchText = `Matched Condition ${i + 1}`;
+        indicatorBg = "rgba(0, 122, 255, 0.1)"; 
+        isMatched = true;
+        break; 
+      }
+    }
+
+    if (!isMatched) {
       resolvedLink = base + fb + app;
-      matchText = "Matched Fallback (No keywords found)";
-      matchColor = "#d9534f";
+      matchText = "Fallback (No Match Found)";
+      indicatorBg = "rgba(142, 142, 147, 0.1)"; 
     }
 
     resolvedLink = resolvedLink.replace(/\s+/g, '');
 
     resultBox.innerHTML = `
-      <div class="match-indicator" style="color: ${matchColor};">${matchText}</div><br>
-      ${resolvedLink}
+      <div class="match-indicator" style="background-color: ${indicatorBg}; color: var(--text-primary);">${matchText}</div><br>
+      <div style="margin-top:5px;">${resolvedLink}</div>
     `;
   }
 
-  // Pre-generate the link on page load so the textarea isn't empty
+  // Initialize
   window.onload = () => {
     generateLink();
   };

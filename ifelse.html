@@ -70,34 +70,129 @@
     resize: vertical;
     background-color: #eef1f5;
   }
+  
+  /* Tooltip Styles */
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    color: #0056b3;
+    margin-left: 5px;
+    font-weight: bold;
+    background: #eef1f5;
+    border-radius: 50%;
+    width: 18px;
+    text-align: center;
+    line-height: 18px;
+    font-size: 0.8em;
+  }
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 260px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 135%;
+    left: 50%;
+    margin-left: -130px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: normal;
+    font-size: 0.9em;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    line-height: 1.4;
+  }
+  .tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* Toast Notification Styles */
+  .toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #d9534f;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 12px;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    font-size: 0.95em;
+    font-weight: bold;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s, top 0.3s;
+  }
+  .toast.show {
+    visibility: visible;
+    opacity: 1;
+    top: 30px;
+  }
 </style>
 </head>
 <body>
 
+<div id="toast" class="toast">Whitespace is not allowed! Spaces have been removed.</div>
+
 <div class="container">
   <h2>Ad Link Macro Generator</h2>
-  <p>Fill in the variables below to generate your nested IF/ELSE tracking link.</p>
+  <p>Fill in the variables below. <strong>Whitespace is strictly disabled.</strong></p>
 
   <label for="baseLink">Base Tracking Link (Prepended)</label>
-  <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/">
+  <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
 
   <div class="input-group">
-    <label for="cond1Key">Condition 1 Keyword (e.g., Credit Limit)</label>
-    <input type="text" id="cond1Key" value="Credit Limit">
+    <label for="cond1Key">
+      Condition 1 Keyword
+      <div class="tooltip">?
+        <span class="tooltiptext"><strong>Important Note on Regex Keywords:</strong> Because spaces are no longer allowed in the inputs, your keywords like "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code> if the incoming data actually contains spaces).</span>
+      </div>
+    </label>
+    <input type="text" id="cond1Key" value="CreditLimit" oninput="sanitizeInput(this)">
+    
     <label for="cond1Out">Condition 1 Output Link</label>
-    <input type="text" id="cond1Out" value="SHqv?aff_sub5=AFFIMPACTFI">
+    <input type="text" id="cond1Out" value="SHqv?aff_sub5=AFFIMPACTFI" oninput="sanitizeInput(this)">
   </div>
 
   <div class="input-group">
-    <label for="cond2Key">Condition 2 Keyword (e.g., New Card)</label>
-    <input type="text" id="cond2Key" value="New Card">
+    <label for="cond2Key">
+      Condition 2 Keyword
+      <div class="tooltip">?
+        <span class="tooltiptext"><strong>Important Note on Regex Keywords:</strong> Because spaces are no longer allowed in the inputs, your keywords like "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code> if the incoming data actually contains spaces).</span>
+      </div>
+    </label>
+    <input type="text" id="cond2Key" value="NewCard" oninput="sanitizeInput(this)">
+    
     <label for="cond2Out">Condition 2 Output Link</label>
-    <input type="text" id="cond2Out" value="SHqw?aff_sub5=AFFIMPACTFICC">
+    <input type="text" id="cond2Out" value="SHqw?aff_sub5=AFFIMPACTFICC" oninput="sanitizeInput(this)">
   </div>
 
   <div class="input-group" style="border-left-color: #d9534f;">
     <label for="fallbackOut">Fallback Link (If neither matches)</label>
-    <input type="text" id="fallbackOut" value="554686360;363508829;w?{gwlurl:plain}">
+    <input type="text" id="fallbackOut" value="554686360;363508829;w?{gwlurl:plain}" oninput="sanitizeInput(this)">
+  </div>
+
+  <div class="input-group" style="border-left-color: #5cb85c;">
+    <label for="appendedLink">Appended Tracking Link (Suffix)</label>
+    <input type="text" id="appendedLink" value="&extra_param=123" oninput="sanitizeInput(this)">
   </div>
 
   <button onclick="generateLink()">Generate Link String</button>
@@ -107,16 +202,43 @@
 </div>
 
 <script>
-  function generateLink() {
-    const base = document.getElementById('baseLink').value.trim();
-    const c1k = document.getElementById('cond1Key').value.trim();
-    const c1o = document.getElementById('cond1Out').value.trim();
-    const c2k = document.getElementById('cond2Key').value.trim();
-    const c2o = document.getElementById('cond2Out').value.trim();
-    const fb = document.getElementById('fallbackOut').value.trim();
+  let toastTimeout;
 
-    // The nested macro structure
-    const outputString = `${base}{if(iradname~".*${c1k}.*","${c1o}", "{if(iradname~".*${c2k}.*","${c2o}", "${fb}")}")}`;
+  // Function to check for whitespace, notify user, and remove it
+  function sanitizeInput(inputElement) {
+    if (/\s/.test(inputElement.value)) {
+      showToast();
+      inputElement.value = inputElement.value.replace(/\s/g, '');
+    }
+  }
+
+  // Function to show the warning notification temporarily
+  function showToast() {
+    const toast = document.getElementById("toast");
+    toast.classList.add("show");
+    
+    // Reset the timer if they trigger it again before it fades
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
+
+  function generateLink() {
+    // Grab values
+    const base = document.getElementById('baseLink').value;
+    const c1k = document.getElementById('cond1Key').value;
+    const c1o = document.getElementById('cond1Out').value;
+    const c2k = document.getElementById('cond2Key').value;
+    const c2o = document.getElementById('cond2Out').value;
+    const fb = document.getElementById('fallbackOut').value;
+    const app = document.getElementById('appendedLink').value;
+
+    // Build the nested macro structure with the appended link at the end
+    let outputString = `${base}{if(iradname~".*${c1k}.*","${c1o}","{if(iradname~".*${c2k}.*","${c2o}","${fb}")}")}${app}`;
+    
+    // Final safety check to strip any whitespace globally before outputting
+    outputString = outputString.replace(/\s+/g, '');
     
     document.getElementById('result').value = outputString;
   }

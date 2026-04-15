@@ -13,14 +13,42 @@
     display: flex;
     justify-content: center;
   }
+  .app-layout {
+    display: flex;
+    gap: 20px;
+    max-width: 1100px;
+    width: 100%;
+    align-items: flex-start;
+  }
   .container {
     background: #fff;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    max-width: 650px;
-    width: 100%;
   }
+  .main-tool {
+    flex: 1 1 65%;
+  }
+  .sidebar {
+    flex: 1 1 35%;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 20px 25px;
+  }
+  
+  /* Make responsive */
+  @media (max-width: 850px) {
+    .app-layout {
+      flex-direction: column;
+    }
+    .sidebar {
+      position: static;
+      max-height: none;
+    }
+  }
+
   h2 { margin-top: 0; }
   h3 {
     margin-top: 30px;
@@ -28,6 +56,18 @@
     border-top: 2px solid #eee;
     color: #0056b3;
   }
+  .sidebar h3 {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    margin-bottom: 5px;
+  }
+  .sidebar-sub {
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
   label {
     display: block;
     margin-top: 15px;
@@ -59,12 +99,9 @@
     gap: 10px;
     align-items: center;
   }
-  .row > select {
-    flex: 0 0 auto;
-  }
-  .row > input {
-    flex: 1 1 auto;
-  }
+  .row > select { flex: 0 0 auto; }
+  .row > input { flex: 1 1 auto; }
+  
   .input-group {
     background: #fdfdfd;
     border: 1px solid #eee;
@@ -79,6 +116,7 @@
     margin-top: 10px;
     border-left: 4px solid #f39c12;
   }
+  
   button {
     margin-top: 20px;
     padding: 12px 20px;
@@ -89,13 +127,12 @@
     font-size: 1em;
     cursor: pointer;
     width: 100%;
+    font-weight: bold;
   }
   button:hover { background: #004494; }
-  button.test-btn {
-    background: #f39c12;
-    color: #fff;
-  }
+  button.test-btn { background: #f39c12; color: #fff; }
   button.test-btn:hover { background: #d68910; }
+  
   textarea {
     width: 100%;
     height: 100px;
@@ -149,7 +186,7 @@
     border-radius: 6px;
     padding: 12px;
     position: absolute;
-    z-index: 1;
+    z-index: 10;
     bottom: 135%;
     left: 50%;
     margin-left: -140px;
@@ -175,7 +212,7 @@
     opacity: 1;
   }
 
-  /* Toast Notification Styles */
+  /* Toast Notification */
   .toast {
     visibility: hidden;
     min-width: 250px;
@@ -200,93 +237,227 @@
     opacity: 1;
     top: 30px;
   }
+
+  /* Sidebar Macro List Styles */
+  .macro-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .macro-item {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 12px;
+  }
+  .macro-item:last-child {
+    border-bottom: none;
+  }
+  .macro-tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .macro-tag {
+    display: inline-block;
+    background: #eef1f5;
+    border: 1px dashed #0056b3;
+    color: #0056b3;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    cursor: grab;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .macro-tag:hover {
+    background: #dce4ee;
+  }
+  .macro-tag:active {
+    cursor: grabbing;
+  }
+  .macro-desc {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
 </style>
 </head>
 <body>
 
 <div id="toast" class="toast">Whitespace is not allowed here! Spaces have been removed.</div>
 
-<div class="container">
-  <h2>Ad Link Macro Generator</h2>
-  <p>Fill in the variables below. <strong>Whitespace is strictly disabled.</strong></p>
-
-  <label for="baseLink">Base Tracking Link (Prepended)</label>
-  <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
-
-  <div class="input-group">
-    <label>
-      Condition 1 Keyword Match & Input
-      <div class="tooltip">?
-        <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
-      </div>
-    </label>
-    <div class="row">
-      <select id="cond1Match">
-        <option value="contains">Contains</option>
-        <option value="exact">Exact Match</option>
-      </select>
-      <input type="text" id="cond1Key" value="CreditLimit" oninput="sanitizeInput(this)" placeholder="Keyword">
-    </div>
-    
-    <label for="cond1Out">Condition 1 Output Link</label>
-    <input type="text" id="cond1Out" value="SHqv?aff_sub5=AFFIMPACTFI" oninput="sanitizeInput(this)">
-  </div>
-
-  <div class="input-group">
-    <label>
-      Condition 2 Keyword Match & Input
-      <div class="tooltip">?
-        <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
-      </div>
-    </label>
-    <div class="row">
-      <select id="cond2Match">
-        <option value="contains">Contains</option>
-        <option value="exact">Exact Match</option>
-      </select>
-      <input type="text" id="cond2Key" value="NewCard" oninput="sanitizeInput(this)" placeholder="Keyword">
-    </div>
-    
-    <label for="cond2Out">Condition 2 Output Link</label>
-    <input type="text" id="cond2Out" value="SHqw?aff_sub5=AFFIMPACTFICC" oninput="sanitizeInput(this)">
-  </div>
-
-  <div class="input-group" style="border-left-color: #d9534f;">
-    <label for="fallbackOut">Fallback Link (If neither matches)</label>
-    <input type="text" id="fallbackOut" value="554686360;363508829;w?{gwlurl:plain}" oninput="sanitizeInput(this)">
-  </div>
-
-  <div class="input-group" style="border-left-color: #5cb85c;">
-    <label for="appendedLink">Appended Tracking Link (Suffix)</label>
-    <input type="text" id="appendedLink" value="&extra_param=123" oninput="sanitizeInput(this)">
-  </div>
-
-  <button onclick="generateLink()">1. Generate Link String</button>
-
-  <label for="result">Generated Macro Output:</label>
-  <textarea id="result" readonly placeholder="Your generated link will appear here..."></textarea>
-
-  <h3>Macro Logic Tester</h3>
-  <p style="font-size: 0.9em; color: #555;">Test a sample Ad Name to see which link the macro will output. <em>(Spaces are allowed in this test field to simulate real incoming Ad Names).</em></p>
+<div class="app-layout">
   
-  <div class="tester-group">
-    <label for="testAdName" style="margin-top: 0;">Simulated Ad Name (iradname)</label>
-    <input type="text" id="testAdName" placeholder="e.g., SummerPromo_CreditLimit_2024">
-    
-    <button class="test-btn" onclick="testLogic()">2. Test Logic</button>
-    
-    <label>Simulated Resolved URL:</label>
-    <div id="testResultBox" class="test-result-box">
-      <span style="color:#999;">Run the test to see the result...</span>
+  <div class="container main-tool">
+    <h2>Ad Link Macro Generator</h2>
+    <p>Fill in the variables below. <strong>Whitespace is strictly disabled.</strong></p>
+
+    <label for="baseLink">Base Tracking Link (Prepended)</label>
+    <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
+
+    <div class="input-group">
+      <label>
+        Condition 1 Keyword Match & Input
+        <div class="tooltip">?
+          <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
+        </div>
+      </label>
+      <div class="row">
+        <select id="cond1Match">
+          <option value="contains">Contains</option>
+          <option value="exact">Exact Match</option>
+        </select>
+        <input type="text" id="cond1Key" value="CreditLimit" oninput="sanitizeInput(this)" placeholder="Keyword">
+      </div>
+      
+      <label for="cond1Out">Condition 1 Output Link</label>
+      <input type="text" id="cond1Out" value="SHqv?aff_sub5=AFFIMPACTFI" oninput="sanitizeInput(this)">
     </div>
+
+    <div class="input-group">
+      <label>
+        Condition 2 Keyword Match & Input
+        <div class="tooltip">?
+          <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
+        </div>
+      </label>
+      <div class="row">
+        <select id="cond2Match">
+          <option value="contains">Contains</option>
+          <option value="exact">Exact Match</option>
+        </select>
+        <input type="text" id="cond2Key" value="NewCard" oninput="sanitizeInput(this)" placeholder="Keyword">
+      </div>
+      
+      <label for="cond2Out">Condition 2 Output Link</label>
+      <input type="text" id="cond2Out" value="SHqw?aff_sub5=AFFIMPACTFICC" oninput="sanitizeInput(this)">
+    </div>
+
+    <div class="input-group" style="border-left-color: #d9534f;">
+      <label for="fallbackOut">Fallback Link (If neither matches)</label>
+      <input type="text" id="fallbackOut" value="554686360;363508829;w?{gwlurl:plain}" oninput="sanitizeInput(this)">
+    </div>
+
+    <div class="input-group" style="border-left-color: #5cb85c;">
+      <label for="appendedLink">Appended Tracking Link (Suffix)</label>
+      <input type="text" id="appendedLink" value="&extra_param=123" oninput="sanitizeInput(this)">
+    </div>
+
+    <button onclick="generateLink()">1. Generate Link String</button>
+
+    <label for="result">Generated Macro Output:</label>
+    <textarea id="result" readonly placeholder="Your generated link will appear here..."></textarea>
+
+    <h3>Macro Logic Tester</h3>
+    <p style="font-size: 0.9em; color: #555;">Test a sample Ad Name to see which link the macro will output. <em>(Spaces are allowed in this test field to simulate real incoming Ad Names).</em></p>
+    
+    <div class="tester-group">
+      <label for="testAdName" style="margin-top: 0;">Simulated Ad Name (iradname)</label>
+      <input type="text" id="testAdName" placeholder="e.g., SummerPromo_CreditLimit_2024">
+      
+      <button class="test-btn" onclick="testLogic()">2. Test Logic</button>
+      
+      <label>Simulated Resolved URL:</label>
+      <div id="testResultBox" class="test-result-box">
+        <span style="color:#999;">Run the test to see the result...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container sidebar">
+    <h3>Impact Macros</h3>
+    <div class="sidebar-sub">Click to copy or Drag & Drop directly into an input field.</div>
+    
+    <div class="macro-list" id="macroList">
+      </div>
   </div>
 
 </div>
 
 <script>
+  // --- IMPACT MACROS DICTIONARY ---
+  const impactMacros = [
+    { name: "{clickid}", desc: "Unique click ID the system assigns to the click event." },
+    { name: "{iradid}", desc: "Referring ad ID." },
+    { name: "{ircid}", desc: "Referring program ID." },
+    { name: "{irpid}", desc: "Referring partner ID." },
+    { name: "{iradname}", desc: "Referring ad name." },
+    { name: "{iradtype}", desc: "Ad type (e.g., banner, text, image)." },
+    { name: "{iradsize}", desc: "Ad size." },
+    { name: "{prodsku}", desc: "SKU assigned to the product associated with the ad." },
+    { name: "{irmpname}", desc: "Name of the partner in impact.com." },
+    { name: "{irmptype}", desc: "Mediatype will return either 'mediapartner' or 'mediasource' depending where the click originated from." },
+    { name: "{sharedid}", desc: "ID that partners can append as a query string parameter to their own tracking links, which is then visible to you in reporting." },
+    { names: ["{mp_value1}", "{mp_value2}", "{mp_value3}"], desc: "Partner custom values you can assign to a partner. Note: These values are applied across your entire account, not just for a single Program/Campaign." },
+    { name: "{timestamp}", desc: "UNIX timestamp generated when the click event occurred." },
+    { name: "{randint}", desc: "Random integer generated between 0–9,999,999 when a tracking link is clicked." },
+    { name: "{impacttest}", desc: "Test parameter appended when you test your tracking links." },
+    { name: "{irmpgroupname}", desc: "Group name that lists one or multiple groups that a partner belongs to within a query string." },
+    { name: "{referringdomain}", desc: "Domain where the user originated from." },
+    { name: "{country}", desc: "Visitor country code based on IP geolocation (e.g., US, CA, GB)." },
+    { names: ["{gwlurl}", "{gwlurl:plain}"], desc: "Gateway landing page URL to which all visitors will be redirected to ensure accurate tracking. To ensure that it is never encoded, you can make use of the :plain variant." }
+  ];
+
+  // Render macros into the sidebar
+  const macroListContainer = document.getElementById('macroList');
+  
+  impactMacros.forEach(item => {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'macro-item';
+    
+    const tagContainer = document.createElement('div');
+    tagContainer.className = 'macro-tag-container';
+    
+    // Handle either single 'name' or array of 'names'
+    const tags = item.names || [item.name];
+    
+    tags.forEach(tagText => {
+      const tagSpan = document.createElement('span');
+      tagSpan.className = 'macro-tag';
+      tagSpan.draggable = true;
+      tagSpan.innerText = tagText;
+      
+      // Setup Drag & Drop text payload
+      tagSpan.ondragstart = (e) => {
+        e.dataTransfer.setData('text/plain', tagText);
+        e.dataTransfer.effectAllowed = 'copy';
+      };
+      
+      // Setup Click to Copy
+      tagSpan.onclick = () => {
+        navigator.clipboard.writeText(tagText).then(() => {
+          const originalText = tagSpan.innerText;
+          tagSpan.innerText = 'Copied!';
+          tagSpan.style.backgroundColor = '#d4edda';
+          tagSpan.style.borderColor = '#28a745';
+          tagSpan.style.color = '#155724';
+          
+          setTimeout(() => {
+            tagSpan.innerText = originalText;
+            tagSpan.style.backgroundColor = '';
+            tagSpan.style.borderColor = '';
+            tagSpan.style.color = '';
+          }, 1200);
+        });
+      };
+      
+      tagContainer.appendChild(tagSpan);
+    });
+    
+    const descP = document.createElement('p');
+    descP.className = 'macro-desc';
+    descP.innerText = item.desc;
+    
+    itemDiv.appendChild(tagContainer);
+    itemDiv.appendChild(descP);
+    macroListContainer.appendChild(itemDiv);
+  });
+
+  // --- LOGIC GENERATOR & TESTER ---
   let toastTimeout;
 
-  // Function to check for whitespace, notify user, and remove it
   function sanitizeInput(inputElement) {
     if (/\s/.test(inputElement.value)) {
       showToast();
@@ -294,18 +465,13 @@
     }
   }
 
-  // Function to show the warning notification temporarily
   function showToast() {
     const toast = document.getElementById("toast");
     toast.classList.add("show");
-    
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => {
-      toast.classList.remove("show");
-    }, 3000);
+    toastTimeout = setTimeout(() => { toast.classList.remove("show"); }, 3000);
   }
 
-  // Helper to build the exact regex string based on match type
   function getRegexString(matchType, rawKeyword) {
     return matchType === 'contains' ? `.*${rawKeyword}.*` : `^${rawKeyword}$`;
   }
@@ -340,7 +506,6 @@
       return;
     }
 
-    // Grab current field values to test against
     const base = document.getElementById('baseLink').value;
     const app = document.getElementById('appendedLink').value;
     const fb = document.getElementById('fallbackOut').value;
@@ -353,7 +518,6 @@
     const c2kRaw = document.getElementById('cond2Key').value;
     const c2o = document.getElementById('cond2Out').value;
 
-    // Create real JS RegExp objects using our helper function logic
     const regex1 = new RegExp(getRegexString(c1Match, c1kRaw));
     const regex2 = new RegExp(getRegexString(c2Match, c2kRaw));
 
@@ -361,25 +525,22 @@
     let matchText = "";
     let matchColor = "";
 
-    // Simulate the nested IF/ELSE logic
     if (regex1.test(testName)) {
       resolvedLink = base + c1o + app;
       matchText = "Matched Condition 1";
-      matchColor = "#0056b3"; // Blue
+      matchColor = "#0056b3";
     } else if (regex2.test(testName)) {
       resolvedLink = base + c2o + app;
       matchText = "Matched Condition 2";
-      matchColor = "#0056b3"; // Blue
+      matchColor = "#0056b3";
     } else {
       resolvedLink = base + fb + app;
       matchText = "Matched Fallback (No keywords found)";
-      matchColor = "#d9534f"; // Red
+      matchColor = "#d9534f";
     }
 
-    // Remove any accidental whitespace just like the generator does
     resolvedLink = resolvedLink.replace(/\s+/g, '');
 
-    // Display the result
     resultBox.innerHTML = `
       <div class="match-indicator" style="color: ${matchColor};">${matchText}</div><br>
       ${resolvedLink}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ad Link Macro Generator & Tester</title>
+<title>Impact IF...ELSE Macro Generator & Tester</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -49,7 +49,7 @@
     }
   }
 
-  h2 { margin-top: 0; }
+  h2 { margin-top: 0; color: #333; }
   h3 {
     margin-top: 30px;
     padding-top: 20px;
@@ -89,6 +89,15 @@
     background-color: #fff;
     cursor: pointer;
   }
+  
+  /* Use Case Highlight */
+  #modeSelector {
+    border: 2px solid #0056b3;
+    font-weight: bold;
+    color: #0056b3;
+    margin-bottom: 10px;
+  }
+
   .row {
     display: flex;
     gap: 10px;
@@ -286,11 +295,19 @@
 <div class="app-layout">
   
   <div class="container main-tool">
-    <h2>Ad Link Macro Generator</h2>
-    <p>Fill in the variables below. <strong>Whitespace is strictly disabled.</strong></p>
+    <h2>Impact IF...ELSE Macro Generator</h2>
+    <p>Generate nested IF/ELSE logic for your Impact tracking setups. <strong>Whitespace is strictly disabled.</strong></p>
 
-    <label for="baseLink">Base Tracking Link (Prepended)</label>
-    <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
+    <label for="modeSelector">Select Use Case</label>
+    <select id="modeSelector" onchange="toggleMode()">
+      <option value="gateway">3rd Party Gateway (Base + Logic + Append)</option>
+      <option value="template">Program Tracking Template (Logic Only)</option>
+    </select>
+
+    <div id="baseLinkGroup">
+      <label for="baseLink">Base Tracking Link (Prepended)</label>
+      <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
+    </div>
 
     <label for="evalVariable">Macro Variable to Evaluate</label>
     <select id="evalVariable">
@@ -339,7 +356,7 @@
       <input type="text" id="fallbackOut" value="554686360;363508829;w?{gwlurl:plain}" oninput="sanitizeInput(this)">
     </div>
 
-    <div class="input-group" style="border-left-color: #5cb85c;">
+    <div id="appendedLinkGroup" class="input-group" style="border-left-color: #5cb85c;">
       <label for="appendedLink">Appended Tracking Link (Suffix)</label>
       <input type="text" id="appendedLink" value="&extra_param=123" oninput="sanitizeInput(this)">
     </div>
@@ -475,6 +492,24 @@
   // --- LOGIC GENERATOR & TESTER ---
   let toastTimeout;
 
+  // Toggle Visibility for Gateway vs Template modes
+  function toggleMode() {
+    const mode = document.getElementById('modeSelector').value;
+    const baseGroup = document.getElementById('baseLinkGroup');
+    const appGroup = document.getElementById('appendedLinkGroup');
+    
+    if (mode === 'template') {
+      baseGroup.style.display = 'none';
+      appGroup.style.display = 'none';
+    } else {
+      baseGroup.style.display = 'block';
+      appGroup.style.display = 'block';
+    }
+    
+    // Auto-update output strings whenever mode shifts
+    generateLink();
+  }
+
   function sanitizeInput(inputElement) {
     if (/\s/.test(inputElement.value)) {
       showToast();
@@ -494,10 +529,12 @@
   }
 
   function generateLink() {
-    const base = document.getElementById('baseLink').value;
+    const mode = document.getElementById('modeSelector').value;
+    const base = mode === 'gateway' ? document.getElementById('baseLink').value : '';
+    const app = mode === 'gateway' ? document.getElementById('appendedLink').value : '';
+    
     const evalVar = document.getElementById('evalVariable').value;
     const fb = document.getElementById('fallbackOut').value;
-    const app = document.getElementById('appendedLink').value;
 
     const c1Match = document.getElementById('cond1Match').value;
     const c1kRaw = document.getElementById('cond1Key').value;
@@ -509,7 +546,7 @@
     const c2k = getRegexString(c2Match, c2kRaw);
     const c2o = document.getElementById('cond2Out').value;
 
-    // Build logic with dynamic variable mapping
+    // Build logic with dynamic variable mapping and dynamic base/append based on mode
     let outputString = `${base}{if(${evalVar}~"${c1k}","${c1o}","{if(${evalVar}~"${c2k}","${c2o}","${fb}")}")}${app}`;
     outputString = outputString.replace(/\s+/g, '');
     
@@ -525,8 +562,9 @@
       return;
     }
 
-    const base = document.getElementById('baseLink').value;
-    const app = document.getElementById('appendedLink').value;
+    const mode = document.getElementById('modeSelector').value;
+    const base = mode === 'gateway' ? document.getElementById('baseLink').value : '';
+    const app = mode === 'gateway' ? document.getElementById('appendedLink').value : '';
     const fb = document.getElementById('fallbackOut').value;
 
     const c1Match = document.getElementById('cond1Match').value;
@@ -565,6 +603,11 @@
       ${resolvedLink}
     `;
   }
+
+  // Pre-generate the link on page load so the textarea isn't empty
+  window.onload = () => {
+    generateLink();
+  };
 </script>
 
 </body>

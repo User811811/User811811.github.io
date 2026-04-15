@@ -18,7 +18,7 @@
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    max-width: 600px;
+    max-width: 650px;
     width: 100%;
   }
   h2 { margin-top: 0; }
@@ -37,6 +37,27 @@
     border-radius: 4px;
     box-sizing: border-box;
     font-family: monospace;
+  }
+  select {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .row > select {
+    flex: 0 0 auto;
+  }
+  .row > input {
+    flex: 1 1 auto;
   }
   .input-group {
     background: #fdfdfd;
@@ -88,17 +109,17 @@
   }
   .tooltip .tooltiptext {
     visibility: hidden;
-    width: 260px;
+    width: 280px;
     background-color: #333;
     color: #fff;
     text-align: left;
     border-radius: 6px;
-    padding: 10px;
+    padding: 12px;
     position: absolute;
     z-index: 1;
     bottom: 135%;
     left: 50%;
-    margin-left: -130px;
+    margin-left: -140px;
     opacity: 0;
     transition: opacity 0.3s;
     font-weight: normal;
@@ -160,26 +181,38 @@
   <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
 
   <div class="input-group">
-    <label for="cond1Key">
-      Condition 1 Keyword
+    <label>
+      Condition 1 Keyword Match & Input
       <div class="tooltip">?
-        <span class="tooltiptext"><strong>Important Note on Regex Keywords:</strong> Because spaces are no longer allowed in the inputs, your keywords like "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code> if the incoming data actually contains spaces).</span>
+        <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
       </div>
     </label>
-    <input type="text" id="cond1Key" value="CreditLimit" oninput="sanitizeInput(this)">
+    <div class="row">
+      <select id="cond1Match">
+        <option value="contains">Contains</option>
+        <option value="exact">Exact Match</option>
+      </select>
+      <input type="text" id="cond1Key" value="CreditLimit" oninput="sanitizeInput(this)" placeholder="Keyword">
+    </div>
     
     <label for="cond1Out">Condition 1 Output Link</label>
     <input type="text" id="cond1Out" value="SHqv?aff_sub5=AFFIMPACTFI" oninput="sanitizeInput(this)">
   </div>
 
   <div class="input-group">
-    <label for="cond2Key">
-      Condition 2 Keyword
+    <label>
+      Condition 2 Keyword Match & Input
       <div class="tooltip">?
-        <span class="tooltiptext"><strong>Important Note on Regex Keywords:</strong> Because spaces are no longer allowed in the inputs, your keywords like "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code> if the incoming data actually contains spaces).</span>
+        <span class="tooltiptext"><strong>Note on Spacing & Regex:</strong> Spaces are not allowed, so "Credit Limit" must become "CreditLimit" (or use URL encoding like <code>Credit%20Limit</code> or regex wildcards like <code>Credit.*Limit</code>). The tool will automatically wrap your keyword in the correct regex characters for "Contains" (<code>.*</code>) or "Exact Match" (<code>^...$</code>).</span>
       </div>
     </label>
-    <input type="text" id="cond2Key" value="NewCard" oninput="sanitizeInput(this)">
+    <div class="row">
+      <select id="cond2Match">
+        <option value="contains">Contains</option>
+        <option value="exact">Exact Match</option>
+      </select>
+      <input type="text" id="cond2Key" value="NewCard" oninput="sanitizeInput(this)" placeholder="Keyword">
+    </div>
     
     <label for="cond2Out">Condition 2 Output Link</label>
     <input type="text" id="cond2Out" value="SHqw?aff_sub5=AFFIMPACTFICC" oninput="sanitizeInput(this)">
@@ -217,7 +250,6 @@
     const toast = document.getElementById("toast");
     toast.classList.add("show");
     
-    // Reset the timer if they trigger it again before it fades
     clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => {
       toast.classList.remove("show");
@@ -225,17 +257,25 @@
   }
 
   function generateLink() {
-    // Grab values
+    // Grab base, fallback, and appends
     const base = document.getElementById('baseLink').value;
-    const c1k = document.getElementById('cond1Key').value;
-    const c1o = document.getElementById('cond1Out').value;
-    const c2k = document.getElementById('cond2Key').value;
-    const c2o = document.getElementById('cond2Out').value;
     const fb = document.getElementById('fallbackOut').value;
     const app = document.getElementById('appendedLink').value;
 
-    // Build the nested macro structure with the appended link at the end
-    let outputString = `${base}{if(iradname~".*${c1k}.*","${c1o}","{if(iradname~".*${c2k}.*","${c2o}","${fb}")}")}${app}`;
+    // Grab Condition 1 values and format regex
+    const c1Match = document.getElementById('cond1Match').value;
+    const c1kRaw = document.getElementById('cond1Key').value;
+    const c1k = c1Match === 'contains' ? `.*${c1kRaw}.*` : `^${c1kRaw}$`;
+    const c1o = document.getElementById('cond1Out').value;
+
+    // Grab Condition 2 values and format regex
+    const c2Match = document.getElementById('cond2Match').value;
+    const c2kRaw = document.getElementById('cond2Key').value;
+    const c2k = c2Match === 'contains' ? `.*${c2kRaw}.*` : `^${c2kRaw}$`;
+    const c2o = document.getElementById('cond2Out').value;
+
+    // Build the nested macro structure using the freshly formatted regex strings
+    let outputString = `${base}{if(iradname~"${c1k}","${c1o}","{if(iradname~"${c2k}","${c2o}","${fb}")}")}${app}`;
     
     // Final safety check to strip any whitespace globally before outputting
     outputString = outputString.replace(/\s+/g, '');

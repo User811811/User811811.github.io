@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ad Link Macro Generator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+  }
+  h2 { margin-top: 0; }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #555;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: monospace;
+  }
+  .input-group {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    padding: 15px;
+    margin-top: 10px;
+    border-left: 4px solid #0056b3;
+  }
+  button {
+    margin-top: 25px;
+    padding: 12px 20px;
+    background: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    width: 100%;
+  }
+  button:hover { background: #004494; }
+  textarea {
+    width: 100%;
+    height: 120px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: monospace;
+    font-size: 0.9em;
+    resize: vertical;
+    background-color: #eef1f5;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Ad Link Macro Generator</h2>
+  <p>Fill in the variables below to generate your nested IF/ELSE tracking link.</p>
+
+  <label for="baseLink">Base Tracking Link (Prepended)</label>
+  <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/">
+
+  <div class="input-group">
+    <label for="cond1Key">Condition 1 Keyword (e.g., Credit Limit)</label>
+    <input type="text" id="cond1Key" value="Credit Limit">
+    <label for="cond1Out">Condition 1 Output Link</label>
+    <input type="text" id="cond1Out" value="SHqv?aff_sub5=AFFIMPACTFI">
+  </div>
+
+  <div class="input-group">
+    <label for="cond2Key">Condition 2 Keyword (e.g., New Card)</label>
+    <input type="text" id="cond2Key" value="New Card">
+    <label for="cond2Out">Condition 2 Output Link</label>
+    <input type="text" id="cond2Out" value="SHqw?aff_sub5=AFFIMPACTFICC">
+  </div>
+
+  <div class="input-group" style="border-left-color: #d9534f;">
+    <label for="fallbackOut">Fallback Link (If neither matches)</label>
+    <input type="text" id="fallbackOut" value="554686360;363508829;w?{gwlurl:plain}">
+  </div>
+
+  <button onclick="generateLink()">Generate Link String</button>
+
+  <label for="result">Generated Output:</label>
+  <textarea id="result" readonly placeholder="Your generated link will appear here..."></textarea>
+</div>
+
+<script>
+  function generateLink() {
+    const base = document.getElementById('baseLink').value.trim();
+    const c1k = document.getElementById('cond1Key').value.trim();
+    const c1o = document.getElementById('cond1Out').value.trim();
+    const c2k = document.getElementById('cond2Key').value.trim();
+    const c2o = document.getElementById('cond2Out').value.trim();
+    const fb = document.getElementById('fallbackOut').value.trim();
+
+    // The nested macro structure
+    const outputString = `${base}{if(iradname~".*${c1k}.*","${c1o}", "{if(iradname~".*${c2k}.*","${c2o}", "${fb}")}")}`;
+    
+    document.getElementById('result').value = outputString;
+  }
+</script>
+
+</body>
+</html>

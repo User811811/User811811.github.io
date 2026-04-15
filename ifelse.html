@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ad Link Macro Generator</title>
+<title>Ad Link Macro Generator & Tester</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -22,6 +22,12 @@
     width: 100%;
   }
   h2 { margin-top: 0; }
+  h3 {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+    color: #0056b3;
+  }
   label {
     display: block;
     margin-top: 15px;
@@ -66,8 +72,15 @@
     margin-top: 10px;
     border-left: 4px solid #0056b3;
   }
+  .tester-group {
+    background: #eef1f5;
+    border: 1px solid #d1d8e0;
+    padding: 15px;
+    margin-top: 10px;
+    border-left: 4px solid #f39c12;
+  }
   button {
-    margin-top: 25px;
+    margin-top: 20px;
     padding: 12px 20px;
     background: #0056b3;
     color: white;
@@ -78,9 +91,14 @@
     width: 100%;
   }
   button:hover { background: #004494; }
+  button.test-btn {
+    background: #f39c12;
+    color: #fff;
+  }
+  button.test-btn:hover { background: #d68910; }
   textarea {
     width: 100%;
-    height: 120px;
+    height: 100px;
     margin-top: 10px;
     padding: 10px;
     border: 1px solid #ccc;
@@ -90,6 +108,21 @@
     font-size: 0.9em;
     resize: vertical;
     background-color: #eef1f5;
+  }
+  .test-result-box {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    font-family: monospace;
+    word-break: break-all;
+    min-height: 20px;
+  }
+  .match-indicator {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: inline-block;
   }
   
   /* Tooltip Styles */
@@ -171,7 +204,7 @@
 </head>
 <body>
 
-<div id="toast" class="toast">Whitespace is not allowed! Spaces have been removed.</div>
+<div id="toast" class="toast">Whitespace is not allowed here! Spaces have been removed.</div>
 
 <div class="container">
   <h2>Ad Link Macro Generator</h2>
@@ -228,10 +261,26 @@
     <input type="text" id="appendedLink" value="&extra_param=123" oninput="sanitizeInput(this)">
   </div>
 
-  <button onclick="generateLink()">Generate Link String</button>
+  <button onclick="generateLink()">1. Generate Link String</button>
 
-  <label for="result">Generated Output:</label>
+  <label for="result">Generated Macro Output:</label>
   <textarea id="result" readonly placeholder="Your generated link will appear here..."></textarea>
+
+  <h3>Macro Logic Tester</h3>
+  <p style="font-size: 0.9em; color: #555;">Test a sample Ad Name to see which link the macro will output. <em>(Spaces are allowed in this test field to simulate real incoming Ad Names).</em></p>
+  
+  <div class="tester-group">
+    <label for="testAdName" style="margin-top: 0;">Simulated Ad Name (iradname)</label>
+    <input type="text" id="testAdName" placeholder="e.g., SummerPromo_CreditLimit_2024">
+    
+    <button class="test-btn" onclick="testLogic()">2. Test Logic</button>
+    
+    <label>Simulated Resolved URL:</label>
+    <div id="testResultBox" class="test-result-box">
+      <span style="color:#999;">Run the test to see the result...</span>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -256,31 +305,85 @@
     }, 3000);
   }
 
+  // Helper to build the exact regex string based on match type
+  function getRegexString(matchType, rawKeyword) {
+    return matchType === 'contains' ? `.*${rawKeyword}.*` : `^${rawKeyword}$`;
+  }
+
   function generateLink() {
-    // Grab base, fallback, and appends
     const base = document.getElementById('baseLink').value;
     const fb = document.getElementById('fallbackOut').value;
     const app = document.getElementById('appendedLink').value;
 
-    // Grab Condition 1 values and format regex
     const c1Match = document.getElementById('cond1Match').value;
     const c1kRaw = document.getElementById('cond1Key').value;
-    const c1k = c1Match === 'contains' ? `.*${c1kRaw}.*` : `^${c1kRaw}$`;
+    const c1k = getRegexString(c1Match, c1kRaw);
     const c1o = document.getElementById('cond1Out').value;
 
-    // Grab Condition 2 values and format regex
     const c2Match = document.getElementById('cond2Match').value;
     const c2kRaw = document.getElementById('cond2Key').value;
-    const c2k = c2Match === 'contains' ? `.*${c2kRaw}.*` : `^${c2kRaw}$`;
+    const c2k = getRegexString(c2Match, c2kRaw);
     const c2o = document.getElementById('cond2Out').value;
 
-    // Build the nested macro structure using the freshly formatted regex strings
     let outputString = `${base}{if(iradname~"${c1k}","${c1o}","{if(iradname~"${c2k}","${c2o}","${fb}")}")}${app}`;
-    
-    // Final safety check to strip any whitespace globally before outputting
     outputString = outputString.replace(/\s+/g, '');
     
     document.getElementById('result').value = outputString;
+  }
+
+  function testLogic() {
+    const testName = document.getElementById('testAdName').value;
+    const resultBox = document.getElementById('testResultBox');
+    
+    if(!testName) {
+      resultBox.innerHTML = '<span style="color:#d9534f;">Please enter a test Ad Name.</span>';
+      return;
+    }
+
+    // Grab current field values to test against
+    const base = document.getElementById('baseLink').value;
+    const app = document.getElementById('appendedLink').value;
+    const fb = document.getElementById('fallbackOut').value;
+
+    const c1Match = document.getElementById('cond1Match').value;
+    const c1kRaw = document.getElementById('cond1Key').value;
+    const c1o = document.getElementById('cond1Out').value;
+
+    const c2Match = document.getElementById('cond2Match').value;
+    const c2kRaw = document.getElementById('cond2Key').value;
+    const c2o = document.getElementById('cond2Out').value;
+
+    // Create real JS RegExp objects using our helper function logic
+    const regex1 = new RegExp(getRegexString(c1Match, c1kRaw));
+    const regex2 = new RegExp(getRegexString(c2Match, c2kRaw));
+
+    let resolvedLink = "";
+    let matchText = "";
+    let matchColor = "";
+
+    // Simulate the nested IF/ELSE logic
+    if (regex1.test(testName)) {
+      resolvedLink = base + c1o + app;
+      matchText = "Matched Condition 1";
+      matchColor = "#0056b3"; // Blue
+    } else if (regex2.test(testName)) {
+      resolvedLink = base + c2o + app;
+      matchText = "Matched Condition 2";
+      matchColor = "#0056b3"; // Blue
+    } else {
+      resolvedLink = base + fb + app;
+      matchText = "Matched Fallback (No keywords found)";
+      matchColor = "#d9534f"; // Red
+    }
+
+    // Remove any accidental whitespace just like the generator does
+    resolvedLink = resolvedLink.replace(/\s+/g, '');
+
+    // Display the result
+    resultBox.innerHTML = `
+      <div class="match-indicator" style="color: ${matchColor};">${matchText}</div><br>
+      ${resolvedLink}
+    `;
   }
 </script>
 

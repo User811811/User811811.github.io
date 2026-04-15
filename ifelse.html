@@ -75,7 +75,7 @@
     font-weight: bold;
     color: #555;
   }
-  input[type="text"] {
+  input[type="text"], select {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
@@ -85,11 +85,6 @@
     font-family: monospace;
   }
   select {
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
     font-family: inherit;
     background-color: #fff;
     cursor: pointer;
@@ -99,7 +94,7 @@
     gap: 10px;
     align-items: center;
   }
-  .row > select { flex: 0 0 auto; }
+  .row > select { flex: 0 0 auto; width: auto; }
   .row > input { flex: 1 1 auto; }
   
   .input-group {
@@ -297,6 +292,10 @@
     <label for="baseLink">Base Tracking Link (Prepended)</label>
     <input type="text" id="baseLink" value="ad.doubleclick.net/ddm/clk/" oninput="sanitizeInput(this)">
 
+    <label for="evalVariable">Macro Variable to Evaluate</label>
+    <select id="evalVariable">
+      </select>
+
     <div class="input-group">
       <label>
         Condition 1 Keyword Match & Input
@@ -351,10 +350,10 @@
     <textarea id="result" readonly placeholder="Your generated link will appear here..."></textarea>
 
     <h3>Macro Logic Tester</h3>
-    <p style="font-size: 0.9em; color: #555;">Test a sample Ad Name to see which link the macro will output. <em>(Spaces are allowed in this test field to simulate real incoming Ad Names).</em></p>
+    <p style="font-size: 0.9em; color: #555;">Test a sample value to see which link the macro will output. <em>(Spaces are allowed in this test field to simulate real incoming parameters).</em></p>
     
     <div class="tester-group">
-      <label for="testAdName" style="margin-top: 0;">Simulated Ad Name (iradname)</label>
+      <label id="testInputLabel" for="testAdName" style="margin-top: 0;">Simulated Value (iradname)</label>
       <input type="text" id="testAdName" placeholder="e.g., SummerPromo_CreditLimit_2024">
       
       <button class="test-btn" onclick="testLogic()">2. Test Logic</button>
@@ -400,9 +399,12 @@
     { names: ["{gwlurl}", "{gwlurl:plain}"], desc: "Gateway landing page URL to which all visitors will be redirected to ensure accurate tracking. To ensure that it is never encoded, you can make use of the :plain variant." }
   ];
 
-  // Render macros into the sidebar
+  // DOM Elements
   const macroListContainer = document.getElementById('macroList');
+  const evalVarSelect = document.getElementById('evalVariable');
+  const testInputLabel = document.getElementById('testInputLabel');
   
+  // Render macros into the sidebar & populate dropdown
   impactMacros.forEach(item => {
     const itemDiv = document.createElement('div');
     itemDiv.className = 'macro-item';
@@ -414,18 +416,17 @@
     const tags = item.names || [item.name];
     
     tags.forEach(tagText => {
+      // Setup Sidebar Pills
       const tagSpan = document.createElement('span');
       tagSpan.className = 'macro-tag';
       tagSpan.draggable = true;
       tagSpan.innerText = tagText;
       
-      // Setup Drag & Drop text payload
       tagSpan.ondragstart = (e) => {
         e.dataTransfer.setData('text/plain', tagText);
         e.dataTransfer.effectAllowed = 'copy';
       };
       
-      // Setup Click to Copy
       tagSpan.onclick = () => {
         navigator.clipboard.writeText(tagText).then(() => {
           const originalText = tagSpan.innerText;
@@ -444,6 +445,17 @@
       };
       
       tagContainer.appendChild(tagSpan);
+
+      // Setup Evaluation Variable Dropdown
+      const cleanName = tagText.replace(/[{}]/g, ''); // Remove curly braces
+      const option = document.createElement('option');
+      option.value = cleanName;
+      option.innerText = tagText;
+      
+      if (cleanName === 'iradname') {
+        option.selected = true; // Default to iradname
+      }
+      evalVarSelect.appendChild(option);
     });
     
     const descP = document.createElement('p');
@@ -453,6 +465,11 @@
     itemDiv.appendChild(tagContainer);
     itemDiv.appendChild(descP);
     macroListContainer.appendChild(itemDiv);
+  });
+
+  // Update Tester Label dynamically when user changes the Evaluation Variable
+  evalVarSelect.addEventListener('change', function() {
+    testInputLabel.innerText = `Simulated Value (${this.value})`;
   });
 
   // --- LOGIC GENERATOR & TESTER ---
@@ -478,6 +495,7 @@
 
   function generateLink() {
     const base = document.getElementById('baseLink').value;
+    const evalVar = document.getElementById('evalVariable').value;
     const fb = document.getElementById('fallbackOut').value;
     const app = document.getElementById('appendedLink').value;
 
@@ -491,7 +509,8 @@
     const c2k = getRegexString(c2Match, c2kRaw);
     const c2o = document.getElementById('cond2Out').value;
 
-    let outputString = `${base}{if(iradname~"${c1k}","${c1o}","{if(iradname~"${c2k}","${c2o}","${fb}")}")}${app}`;
+    // Build logic with dynamic variable mapping
+    let outputString = `${base}{if(${evalVar}~"${c1k}","${c1o}","{if(${evalVar}~"${c2k}","${c2o}","${fb}")}")}${app}`;
     outputString = outputString.replace(/\s+/g, '');
     
     document.getElementById('result').value = outputString;
@@ -502,7 +521,7 @@
     const resultBox = document.getElementById('testResultBox');
     
     if(!testName) {
-      resultBox.innerHTML = '<span style="color:#d9534f;">Please enter a test Ad Name.</span>';
+      resultBox.innerHTML = '<span style="color:#d9534f;">Please enter a test value.</span>';
       return;
     }
 

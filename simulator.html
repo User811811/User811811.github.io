@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact Logic Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --impact-blue: #0A6CFF;
+            --accent-red: #ef4444; 
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(10, 108, 255, 0.15) 0%, rgba(255, 255, 255, 0) 55%),
+                radial-gradient(circle at 100% 100%, rgba(239, 68, 68, 0.12) 0%, rgba(255, 255, 255, 0) 55%);
+            background-attachment: fixed;
+            color: #1f2937;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(0, 0, 0, 0.1); 
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05); 
+            border-radius: 12px;
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--impact-blue);
+            box-shadow: 0 0 0 3px rgba(10, 108, 255, 0.15);
+        }
+        .btn-impact-blue { background-color: var(--impact-blue); color: white; transition: all 0.2s; }
+        .btn-impact-blue:hover { background-color: #085ad6; box-shadow: 0 4px 12px rgba(10, 108, 255, 0.3); }
+        
+        /* Debug Console specific */
+        .log-entry { padding: 6px; border-bottom: 1px solid #f1f5f9; font-family: monospace; font-size: 11px; }
+        .log-success { color: #166534; background: #f0fdf4; }
+        .log-warn { color: #9a3412; background: #fff7ed; }
+        .log-error { color: #991b1b; background: #fef2f2; }
+        .log-info { color: #1e40af; background: #eff6ff; }
+        
+        .tab-btn.active { border-bottom: 2px solid var(--impact-blue); color: var(--impact-blue); font-weight: bold; }
+        
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 gap-4 flex-row flex h-full">
+
+    <main class="w-1/2 flex flex-col gap-4 overflow-y-auto pr-2 pb-10">
+        <header class="flex justify-between items-end mb-2">
+            <div>
+                <h1 class="text-2xl font-extrabold text-blue-600 tracking-tight">Logic Simulator</h1>
+                <p class="text-xs text-gray-500 font-medium">Extension Sandbox & Debugger</p>
+            </div>
+            <button onclick="runSimulation()" class="btn-impact-blue px-6 py-2 rounded-md font-bold text-sm shadow-md">
+                Run Simulation Flow &rarr;
+            </button>
+        </header>
+
+        <div class="glass-panel p-5">
+            <h2 class="text-sm font-bold border-b pb-2 mb-3">1. Mock Action Tracker Input</h2>
+            <div id="mock-trackers" class="space-y-4">
+                </div>
+            <button onclick="addMockTracker()" class="mt-3 text-xs font-semibold text-blue-600 border border-blue-200 px-3 py-1.5 rounded bg-blue-50 hover:bg-blue-100">+ Add Tracker</button>
+        </div>
+
+        <div class="glass-panel p-5">
+            <h2 class="text-sm font-bold border-b pb-2 mb-3">2. Simulated Payload Parsing</h2>
+            <div id="sim-badges-container" class="space-y-3">
+                <p class="text-gray-400 italic text-xs">Run simulation to view parsed badges...</p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-5">
+            <h2 class="text-sm font-bold border-b pb-2 mb-3">3. Simulated Checklist Generation</h2>
+            <div class="mb-3 p-2 bg-blue-50 text-blue-800 text-xs rounded border border-blue-200 font-mono" id="sim-active-tags">
+                Active Tags: [None]
+            </div>
+            <div class="overflow-hidden rounded border border-gray-200 bg-white">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50 border-b border-gray-200 text-blue-600 uppercase">
+                        <tr><th class="p-2 w-1/4">Category</th><th class="p-2">Surfaced Task</th></tr>
+                    </thead>
+                    <tbody id="sim-checklist-body" class="divide-y divide-gray-100">
+                        <tr><td colspan="2" class="p-4 text-center text-gray-400">Run simulation to generate checklist...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <aside class="w-1/2 flex flex-col glass-panel overflow-hidden border-l border-gray-200">
+        <div class="flex border-b border-gray-200 bg-white/50 px-2 pt-2">
+            <button class="tab-btn active px-4 py-2 text-sm text-gray-500" onclick="switchTab('debug')">Debug Console</button>
+            <button class="tab-btn px-4 py-2 text-sm text-gray-500" onclick="switchTab('database')">Database Layer</button>
+            <div class="ml-auto pb-2 pr-2">
+                <button onclick="exportConfig()" class="text-xs bg-gray-800 text-white px-3 py-1.5 rounded hover:bg-black font-medium">Export Config for AI</button>
+            </div>
+        </div>
+
+        <div id="tab-debug" class="flex-grow flex flex-col bg-white overflow-hidden">
+            <div class="flex justify-between items-center p-2 border-b bg-gray-50">
+                <span class="text-xs font-bold text-gray-500 uppercase">Real-Time Logic Trace</span>
+                <button onclick="document.getElementById('debug-log').innerHTML = ''" class="text-[10px] text-red-500 hover:underline">Clear Log</button>
+            </div>
+            <div id="debug-log" class="flex-grow overflow-y-auto p-2 space-y-1"></div>
+        </div>
+
+        <div id="tab-database" class="hidden flex-grow flex flex-col bg-white overflow-hidden">
+            <div class="p-2 border-b bg-gray-50 flex justify-between items-center">
+                <select id="db-selector" class="glass-input text-xs px-2 py-1 rounded" onchange="loadEditor()">
+                    <option value="paramMatrix">paramMatrix (Parameters)</option>
+                    <option value="checklistData">checklistData (Tasks)</option>
+                    <option value="integrationDefinitions">integrationDefinitions (Methods)</option>
+                </select>
+                <button onclick="applyDatabaseChanges()" class="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Apply Changes</button>
+            </div>
+            <textarea id="db-editor" class="flex-grow p-4 font-mono text-xs w-full resize-none focus:outline-none" spellcheck="false"></textarea>
+        </div>
+    </aside>
+
+    <script>
+        // --- 1. DEFAULT DATABASE STATE ---
+        let databases = {
+            paramMatrix: [
+                { level: 'order', pretty: 'ConsentStatus', js: 'consentstatus', api: 'consentstatus', ftp: '' },
+                { level: 'order', pretty: '_ir', js: '_ir', api: '', ftp: '' },
+                { level: 'order', pretty: 'AppInstallRef', js: 'appinstallref', api: 'appinstallref', ftp: 'appinstallref' },
+                { level: 'order', pretty: 'CustomerEmail', js: 'customeremail', api: 'customeremail', ftp: '' },
+                { level: 'order', pretty: 'CustomerId', js: 'customerid', api: 'customerid', ftp: 'customerid' },
+                { level: 'order', pretty: 'OrderId', js: 'orderid', api: 'orderid', ftp: 'oid' },
+                { level: 'order', pretty: 'EventDate', js: 'eventdate', api: 'eventdate', ftp: 'eventdate' },
+                { level: 'order', pretty: 'CampaignId', js: 'campaignid', api: 'campaignid', ftp: 'campaignid' },
+                { level: 'item', pretty: 'ItemCategory', js: 'category', api: 'itemcategory', ftp: 'category' },
+                { level: 'item', pretty: 'ItemSku', js: 'sku', api: 'itemsku', ftp: 'sku' },
+                { level: 'item', pretty: 'ItemPrice', js: 'price', api: 'itemprice', ftp: 'itemprice' },
+                { level: 'item', pretty: 'ItemQuantity', js: 'quantity', api: 'itemquantity', ftp: 'quantity' }
+                // Truncated for simulator template. Real matrix goes here.
+            ],
+            checklistData: [
+                { category: 'Universal Tracking Tag', task: 'Click ID saved to cookie', integrations: ['UTT'], datapoints: [] },
+                { category: 'Conversion Payload', task: 'SKU is accurate', integrations: [], datapoints: ['Sale'] },
+                { category: 'Conversion Payload', task: 'Customer Email Hashed', integrations: [], datapoints: ['Email'] }
+            ],
+            integrationDefinitions: {
+                "Website Tag": { checklistKey: "UTT" },
+                "API": { checklistKey: "API" },
+                "enum.trackingmethod.mobile_sdk": { checklistKey: "App" }
+            }
+        };
+
+        // --- 2. MOCK STATE & UI ---
+        let mockTrackers = [
+            { id: 1, name: "Test Lead", method: "API", type: "Online Lead", payload: '{\n  "OrderId": "12345",\n  "CampaignId": "100",\n  "CustomerEmail": "test@test.com",\n  "ItemSku1": "WRONG_ON_LEAD"\n}' }
+        ];
+
+        function renderTrackerInputs() {
+            const container = document.getElementById('mock-trackers');
+            container.innerHTML = mockTrackers.map((t, idx) => `
+                <div class="bg-white border p-3 rounded shadow-sm">
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" value="${t.name}" onchange="updateTracker(${idx}, 'name', this.value)" class="glass-input flex-grow px-2 py-1 text-xs rounded font-bold" placeholder="Tracker Name">
+                        <select onchange="updateTracker(${idx}, 'method', this.value)" class="glass-input px-2 py-1 text-xs rounded">
+                            <option value="API" ${t.method==='API'?'selected':''}>API</option>
+                            <option value="Website Tag" ${t.method==='Website Tag'?'selected':''}>Website Tag</option>
+                        </select>
+                        <select onchange="updateTracker(${idx}, 'type', this.value)" class="glass-input px-2 py-1 text-xs rounded">
+                            <option value="Online Lead" ${t.type==='Online Lead'?'selected':''}>Online Lead</option>
+                            <option value="Online Sale" ${t.type==='Online Sale'?'selected':''}>Online Sale</option>
+                        </select>
+                    </div>
+                    <textarea onchange="updateTracker(${idx}, 'payload', this.value)" class="glass-input w-full p-2 text-[10px] font-mono rounded resize-y" rows="4">${t.payload}</textarea>
+                </div>
+            `).join('');
+        }
+
+        function updateTracker(idx, field, value) { mockTrackers[idx][field] = value; }
+        function addMockTracker() {
+            mockTrackers.push({ id: Date.now(), name: "New Tracker", method: "Website Tag", type: "Online Sale", payload: "oid=123&sku1=ABC" });
+            renderTrackerInputs();
+        }
+
+        // --- 3. DEBUGGER LOGGER ---
+        function logDebug(msg, type = 'info') {
+            const log = document.getElementById('debug-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const time = new Date().toISOString().split('T')[1].slice(0,-1);
+            entry.innerHTML = `<span class="text-gray-400 mr-2">[${time}]</span> ${msg}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // --- 4. CORE ENGINE EMULATION ---
+        function extractParams(text, method) {
+            if (!text || !text.trim()) return [];
+            try {
+                if (method === 'API' || method === 'Website Tag') {
+                    if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+                        const keys = []; const regex = /"([^"]+)"\s*:/g; let match;
+                        while((match = regex.exec(text)) !== null) keys.push(match[1]);
+                        return [...new Set(keys)];
+                    } else {
+                        return Array.from(new URLSearchParams(text.includes('?') ? text.split('?')[1] : text).keys());
+                    }
+                }
+            } catch(e) { logDebug(`Extraction error: ${e.message}`, 'error'); }
+            return [];
+        }
+
+        function validateParameter(rawParam, method, trackerType) {
+            let clean = rawParam.toLowerCase().trim().replace(/\[\d+\]|%5b\d+%5d/g, ''); 
+            let digitsMatch = rawParam.toLowerCase().trim().match(/\d+$/);
+            let digits = digitsMatch ? digitsMatch[0] : '';
+            
+            let targetKey = 'api';
+            if (method === 'Website Tag') targetKey = 'js';
+
+            if ((method === 'API') && (clean === 'items' || clean === 'item')) {
+                logDebug(`Bypassed JSON wrapper: ${rawParam}`, 'info');
+                return { valid: true, level: 'order', reqType: null, prettyName: 'Items (Array Wrapper)', digits: '' };
+            }
+
+            let match = databases.paramMatrix.find(p => p[targetKey] === clean);
+            if (!match) match = databases.paramMatrix.find(p => p[targetKey] === clean.replace(/\d+$/, ''));
+            if (!match) match = databases.paramMatrix.find(p => p.js === clean || p.api === clean || p.js === clean.replace(/\d+$/, '') || p.api === clean.replace(/\d+$/, ''));
+
+            if (!match) {
+                logDebug(`Failed to match parameter: [${rawParam}]. Using raw value.`, 'error');
+                return { valid: false, level: 'unknown', reqType: null, prettyName: rawParam, digits: '' };
+            }
+
+            let reqType = null;
+            const can = match.api || ''; 
+            if (can === 'eventdate' && method !== 'Website Tag') reqType = 'eventdate';
+            else if (['campaignid'].includes(can) && method !== 'Website Tag') reqType = 'campaignid';
+            else if (can === 'orderid') reqType = 'orderid';
+            else if (['customerid', 'clickid'].includes(can)) reqType = 'attribution';
+
+            let validStatus = true;
+            if (match.level === 'item' && trackerType.toLowerCase().includes('lead')) {
+                validStatus = 'warning';
+                logDebug(`Warning: Item level param [${match.pretty}] detected on Lead event.`, 'warn');
+            } else {
+                logDebug(`Successfully matched [${rawParam}] to [${match.pretty}] at ${match.level} level.`, 'success');
+            }
+
+            return { valid: validStatus, level: match.level, reqType: reqType, prettyName: match.pretty, digits: match.level === 'item' ? digits : '' };
+        }
+
+        function runSimulation() {
+            logDebug('--- STARTING SIMULATION RUN ---', 'info');
+            const badgesContainer = document.getElementById('sim-badges-container');
+            badgesContainer.innerHTML = '';
+            
+            let activeFilters = new Set();
+
+            mockTrackers.forEach(t => {
+                logDebug(`Processing Tracker: ${t.name} (${t.method} / ${t.type})`, 'info');
+                
+                // Checklist Tagging - Methods & Types
+                const def = databases.integrationDefinitions[t.method];
+                if (def && def.checklistKey) {
+                    activeFilters.add(def.checklistKey);
+                    logDebug(`Checklist Tag Added: Method mapping -> [${def.checklistKey}]`, 'info');
+                }
+                if (t.type.toLowerCase().includes('sale')) {
+                    activeFilters.add('Sale');
+                    logDebug(`Checklist Tag Added: Tracker type -> [Sale]`, 'info');
+                }
+
+                const params = extractParams(t.payload, t.method);
+                logDebug(`Extracted ${params.length} raw params from payload.`, 'info');
+
+                let orderBadges = [];
+                let itemBadges = {};
+
+                params.forEach(p => {
+                    const validation = validateParameter(p, t.method, t.type);
+                    
+                    // Checklist Tagging - Datapoints
+                    if (validation.valid) {
+                        const pretty = validation.prettyName;
+                        if (['CustomerId'].includes(pretty)) { activeFilters.add('ID'); logDebug(`Checklist Tag Added: Param [${pretty}] -> [ID]`, 'info'); }
+                        if (['CustomerEmail'].includes(pretty)) { activeFilters.add('Email'); logDebug(`Checklist Tag Added: Param [${pretty}] -> [Email]`, 'info'); }
+                        if (['ItemSku'].includes(pretty)) { activeFilters.add('Sale'); logDebug(`Checklist Tag Added: Param [${pretty}] -> [Sale]`, 'info'); }
+                    }
+
+                    let colorClasses = 'bg-white text-gray-600'; 
+                    if (validation.valid === false) colorClasses = 'bg-red-50 text-red-600 border-red-200';
+                    else if (validation.reqType) colorClasses = 'bg-green-50 text-green-700 border-green-300';
+                    else if (validation.valid === 'warning') colorClasses = 'bg-orange-50 text-orange-700 border-orange-300';
+
+                    let display = validation.prettyName + validation.digits;
+                    const html = `<span class="px-2 py-0.5 text-[10px] border rounded ${colorClasses}">${display}</span>`;
+                    
+                    if (validation.level === 'item') {
+                        let idx = validation.digits || '1';
+                        if (!itemBadges[idx]) itemBadges[idx] = [];
+                        itemBadges[idx].push(html);
+                    } else orderBadges.push(html);
+                });
+
+                // Render Badges
+                let renderHtml = `<div class="p-3 border rounded mb-2 bg-gray-50"><h4 class="text-xs font-bold mb-2">${t.name}</h4>`;
+                if (orderBadges.length > 0) renderHtml += `<div class="mb-2"><span class="text-[9px] text-gray-500 block mb-1">Order Level</span><div class="flex gap-1 flex-wrap">${orderBadges.join('')}</div></div>`;
+                Object.keys(itemBadges).forEach(k => {
+                    renderHtml += `<div><span class="text-[9px] text-blue-500 block mb-1">Item Level ${k}</span><div class="flex gap-1 flex-wrap">${itemBadges[k].join('')}</div></div>`;
+                });
+                renderHtml += `</div>`;
+                badgesContainer.innerHTML += renderHtml;
+            });
+
+            // Checklist Generation Phase
+            document.getElementById('sim-active-tags').textContent = `Active Tags: [${Array.from(activeFilters).join(', ')}]`;
+            const checklistBody = document.getElementById('sim-checklist-body');
+            checklistBody.innerHTML = '';
+
+            databases.checklistData.forEach(item => {
+                const reqInt = item.integrations || [];
+                const reqData = item.datapoints || [];
+                
+                const passInt = reqInt.length === 0 || reqInt.some(r => activeFilters.has(r.trim()));
+                const passData = reqData.length === 0 || reqData.some(r => activeFilters.has(r.trim()));
+
+                if (passInt && passData) {
+                    checklistBody.innerHTML += `<tr><td class="p-2 text-blue-600 font-bold">${item.category}</td><td class="p-2">${item.task}</td></tr>`;
+                    logDebug(`Checklist Filter: Included task "${item.task}" (Passed requirements)`, 'success');
+                } else {
+                    logDebug(`Checklist Filter: Dropped task "${item.task}" (Missing tags)`, 'warn');
+                }
+            });
+            
+            logDebug('--- SIMULATION COMPLETE ---', 'info');
+        }
+
+        // --- 5. DATABASE EDITOR ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-debug').classList.add('hidden');
+            document.getElementById('tab-database').classList.add('hidden');
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            if (tabId === 'database') loadEditor();
+        }
+
+        function loadEditor() {
+            const key = document.getElementById('db-selector').value;
+            document.getElementById('db-editor').value = JSON.stringify(databases[key], null, 2);
+        }
+
+        function applyDatabaseChanges() {
+            try {
+                const key = document.getElementById('db-selector').value;
+                const data = JSON.parse(document.getElementById('db-editor').value);
+                databases[key] = data;
+                logDebug(`Database applied successfully for [${key}]. Ready for next run.`, 'success');
+                runSimulation();
+            } catch(e) {
+                logDebug(`JSON Parse Error: ${e.message}`, 'error');
+                alert("Invalid JSON format!");
+            }
+        }
+
+        function exportConfig() {
+            const output = `### Database Export for AI\n\n\`\`\`json\n${JSON.stringify(databases, null, 2)}\n\`\`\``;
+            navigator.clipboard.writeText(output).then(() => {
+                alert("Configuration copied to clipboard! Paste this back to Gemini.");
+                logDebug("Configuration exported to clipboard.", "info");
+            });
+        }
+
+        // Initialize
+        renderTrackerInputs();
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Index Matcher</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .results-area {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        .result-box {
+            margin-bottom: 15px;
+        }
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .missing {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .found {
+            color: #27ae60;
+        }
+        .tag {
+            display: inline-block;
+            background: #eee;
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .tag.missing-tag {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Field Index Matcher & Missing Finder</h1>
+    
+    <div class="grid">
+        <div>
+            <label for="pastedData">1. Paste text containing Field Names (Impact Match):</label>
+            <textarea id="pastedData" placeholder="e.g. some random text ItemPromoCode more random data Text5..."></textarea>
+        </div>
+        <div>
+            <label for="expectedIndices">2. Paste Expected Indices (JSON Format):</label>
+            <textarea id="expectedIndices" placeholder='[&#10;  {&#10;    "otdnid": "23"&#10;  },&#10;  {&#10;    "otdnid": "10"&#10;  }&#10;]'></textarea>
+        </div>
+    </div>
+    
+    <button onclick="analyze()">Compare & Find Missing Indices</button>
+
+    <div class="results-area" id="resultsArea" style="display: none;">
+        <div class="result-box">
+            <div class="result-title missing">❌ Missing Indices (Expected but NOT found):</div>
+            <div id="missingOutput"></div>
+        </div>
+        <hr>
+        <div class="result-box">
+            <div class="result-title found">✅ Found Indices in Paste:</div>
+            <div id="foundOutput"></div>
+        </div>
+        <div class="result-box">
+            <div class="result-title">🔍 Matched Field Names from Paste:</div>
+            <div id="matchedFieldsOutput"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Updated dictionary mapping the Impact match names to their otdnid
+    const fieldMapping = {
+        "OrderPromoCode": "1", "ItemPromoCode": "1", "PromoCode": "1", "Text5": "2", 
+        "ItemCategory": "3", "ItemBrand": "4", "CustomerStatus": "5", "CustomerId": "6", 
+        "Text10": "7", "Date2": "8", "Date6": "9", "OrderDiscount": "10", "ItemDiscount": "10", 
+        "ItemText7": "11", "ItemNumeric1": "12", "ItemText9": "14", "Text16": "15", 
+        "Text17": "16", "Text13": "17", "Text14": "18", "Text18": "19", "Text19": "20", 
+        "Text15": "21", "Text2": "22", "Text22": "23", "ItemSubCategory": "24", 
+        "ItemOnSale": "25", "ItemDiscountRate": "26", "Text25": "27", "Text24": "28", 
+        "ItemText16": "29", "ItemText15": "30", "PaymentType": "31", "ItemText5": "32", 
+        "Text23": "33", "ItemText20": "33", "Text3": "34", "ItemText8": "35", 
+        "Text4": "36", "AppleIfa": "37", "GoogAid": "37", "ItemText19": "38", 
+        "Text8": "41", "ItemSku": "42", "ItemName": "43", "ItemQuantity": "44", 
+        "ItemSubtotal": "46", "ItemNumeric2": "48", "Text41": "49", "Text11": "50", 
+        "DeviceOS": "51", "Text1": "52", "Text6": "53", "EventDate": "54", 
+        "Date9": "57", "Text44": "58", "Numeric2": "59", "ItemText26": "60", 
+        "ItemText27": "61", "ItemText28": "62", "Date10": "64", "Date7": "65", 
+        "Date11": "66", "ItemText13": "67", "ItemText14": "71", "ItemText23": "72", 
+        "ItemText25": "73", "ItemText24": "74", "ItemText21": "75", "ItemText10": "76", 
+        "ItemText12": "77", "ItemText22": "78", "ItemText11": "79", "Text45": "80", 
+        "CustomerCountry": "81", "CustomerRegion": "82", "Date8": "83", 
+        "ItemNumeric4": "84", "Text40": "85", "Text30": "86", "Text38": "87", 
+        "Date5": "88", "Text36": "89", "Text35": "90", "Date4": "91", "Text42": "92", 
+        "Text12": "93", "Date14": "94", "Date12": "95", "Date13": "96", "Text20": "98", 
+        "Text26": "99", "Text27": "100", "Text28": "101", "Text34": "102", 
+        "Text29": "103", "Text32": "104", "Text43": "105", "Text39": "106", 
+        "Text37": "107", "Text33": "108", "Text31": "109", "ItemText3": "110", 
+        "Text21": "111", "Date1": "112", "ItemText4": "113", "ItemNumeric3": "114", 
+        "ItemText2": "115", "ItemText1": "116", "Text7": "117", "Text9": "118", 
+        "Text49": "119", "text50": "120", "ItemText6": "639"
+    };
+
+    function analyze() {
+        const pastedData = document.getElementById('pastedData').value;
+        const expectedInput = document.getElementById('expectedIndices').value;
+        
+        // Build reverse mapping (Index -> Array of Names) for missing names lookup
+        const indexToNames = {};
+        for (const [fieldName, indexValue] of Object.entries(fieldMapping)) {
+            if (!indexToNames[indexValue]) {
+                indexToNames[indexValue] = [];
+            }
+            indexToNames[indexValue].push(fieldName);
+        }
+
+        // 1. Find which field names exist anywhere in the pasted text
+        let foundFields = [];
+        let foundIndicesRaw = [];
+        
+        for (const [fieldName, indexValue] of Object.entries(fieldMapping)) {
+            // \b ensures we only match whole words
+            // 'i' makes it case-insensitive
+            const regex = new RegExp('\\b' + fieldName + '\\b', 'i');
+            
+            if (regex.test(pastedData)) {
+                foundFields.push(fieldName);
+                if (!foundIndicesRaw.includes(indexValue)) {
+                    foundIndicesRaw.push(indexValue);
+                }
+            }
+        }
+
+        // 2. Parse Expected Indices from JSON format
+        let expectedArray = [];
+        try {
+            const parsedJson = JSON.parse(expectedInput);
+            if (Array.isArray(parsedJson)) {
+                expectedArray = parsedJson.map(item => String(item.otdnid)).filter(val => val !== "undefined");
+            }
+        } catch (e) {
+            const regex = /"otdnid"\s*:\s*"?(\d+)"?/g;
+            let match;
+            while ((match = regex.exec(expectedInput)) !== null) {
+                expectedArray.push(match[1]);
+            }
+        }
+
+        const extractNum = (str) => {
+            const match = String(str).match(/\d+/);
+            return match ? match[0] : String(str).toLowerCase().trim();
+        };
+
+        let foundNormalized = foundIndicesRaw.map(extractNum);
+        
+        // 3. Find Missing Indices
+        let missing = [];
+        expectedArray.forEach(exp => {
+            let expNorm = extractNum(exp);
+            if (!foundNormalized.includes(expNorm)) {
+                missing.push(exp);
+            }
+        });
+
+        // 4. Update UI
+        document.getElementById('resultsArea').style.display = 'block';
+        
+        const formatTags = (arr, isMissing = false) => {
+            if (arr.length === 0) return '<em>None</em>';
+            const className = isMissing ? 'tag missing-tag' : 'tag';
+            
+            // Sort by number for easier reading
+            arr.sort((a, b) => parseInt(a) - parseInt(b));
+            
+            return arr.map(item => {
+                // If it's a missing index, attach the field names
+                if (isMissing) {
+                    const names = indexToNames[item] ? indexToNames[item].join(' / ') : 'Unknown Field';
+                    return `<span class="${className}">${item} (${names})</span>`;
+                }
+                return `<span class="${className}">${item}</span>`;
+            }).join('');
+        };
+
+        document.getElementById('missingOutput').innerHTML = missing.length > 0 ? formatTags(missing, true) : '<em>🎉 All expected indices were found!</em>';
+        document.getElementById('foundOutput').innerHTML = formatTags(foundIndicesRaw);
+        document.getElementById('matchedFieldsOutput').innerHTML = formatTags(foundFields);
+    }
+</script>
+
+</body>
+</html>
